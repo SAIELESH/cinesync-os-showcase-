@@ -15,7 +15,8 @@ Script → Scenes → Shots → Camera Controls → Generation Prompt → AI Vid
 ```
 The goal is to help creators think like directors, not just prompt writers.
 
-Key Features
+## Key Features
+
 Script-to-scene workflow
 Scene-to-shot breakdown
 Editable shot suggestions
@@ -27,114 +28,118 @@ Prompt-building layer for AI video generation
 Three-column production-style UI
 Prototype deployment-ready frontend
 Backend-ready architecture for model/API integration
-Product Vision
+
+## Product Vision
 
 CineSync OS is designed as a foundation for an AI-native director operating system.
 
 The long-term vision includes:
 
-Character consistency
-Style consistency
-Shot continuity
-Multi-shot planning
-Director-controlled generation
-Model-agnostic video API integration
-Production workflow automation
-Tech Stack
-Frontend
-React
-Vite
-JavaScript
-CSS Modules / Custom CSS
-Backend
-Python
-FastAPI
-AI / Generation Layer
-LLM-based scene and shot generation
-AI video generation API integration-ready architecture
-Repository Scope
+• Character consistency
+• Style consistency
+• Shot continuity
+• Multi-shot planning
+• Director-controlled generation
+• Model-agnostic video API integration
+
+## Production workflow automation
+
+### Tech Stack
+• Frontend
+• React
+• Vite
+• JavaScript
+• CSS Modules / Custom CSS
+
+### Backend
+• Python
+• FastAPI
+
+### AI / Generation Layer
+• LLM-based scene and shot generation
+• AI video generation API integration-ready architecture
+
+## Repository Scope
 
 This public repository is a showcase version of the CineSync M1 prototype.
 
 It includes selected frontend, workflow, and documentation files to demonstrate:
 
-System design
-Product thinking
-AI workflow architecture
-UI implementation
-End-to-end prototype direction
+• System design
+• Product thinking
+• AI workflow architecture
+• UI implementation
+• End-to-end prototype direction
 
 Some proprietary workflow logic, advanced prompt engineering, and future roadmap details are intentionally excluded.
 
-Suggested Workflow
+## Suggested Workflow
+
 1. Upload or paste a script
 2. Generate structured scenes
 3. Generate shot suggestions
 4. Select camera style and movement
 5. Build generation prompt
 6. Generate or preview AI video output
-Project Status
+
+## Project Status
 
 M1 proof-of-concept completed.
 
 Current focus:
 
-Cleaning public showcase repository
-Improving GitHub documentation
-Preparing for M2 architecture
-Exploring consistency and control layers
-Screenshots / Demo
+• Cleaning public showcase repository
+• Improving GitHub documentation
+• Preparing for M2 architecture
+• Exploring consistency and control layers
 
-Add screenshots inside:
+## Screenshots / Demo
 
 docs/screenshots/
 
-Recommended screenshots:
+## Roadmap
 
-Script input column
-Scene and shot engineering column
-Camera controls
-Generation output column
-Full workflow UI
-Roadmap
-M1 — Proof of Concept
-Script to scene parsing
-Scene to shot suggestions
-Basic camera controls
-AI video generation flow
-Simple UI prototype
-M2 — Consistency & Control
-Structured prompt builder
-Character consistency layer
-Global style binder
-Better camera control mapping
-Improved generation quality
-Future
-Multi-shot continuity
-Reference-based generation
-Storyboard mode
-Timeline-based interface
-Production-ready director console
-Why This Project Matters
+### M1 — Proof of Concept
+• Script to scene parsing
+• Scene to shot suggestions
+• Basic camera controls
+• AI video generation flow
+• Simple UI prototype
+
+### M2 — Consistency & Control
+• Structured prompt builder
+• Character consistency layer
+• Global style binder
+• Better camera control mapping
+• Improved generation quality
+
+### Future
+• Multi-shot continuity
+• Reference-based generation
+• Storyboard mode
+• Timeline-based interface
+• Production-ready director console
+
+## Why This Project Matters
 
 AI filmmaking is moving from simple prompt generation toward structured creative systems.
 
 CineSync OS explores how creators can control:
 
-Narrative structure
-Shot planning
-Camera intent
-Visual consistency
-Production workflow
+• Narrative structure
+• Shot planning
+• Camera intent
+• Visual consistency
+• Production workflow
 
 This project demonstrates the early foundation of that direction.
 
-Author
+## Author
 
-Sailesh Krishnan
-AI Engineer | GenAI & Workflow Automation | AI Filmmaking Systems
+## Sailesh Krishnan
+AI Engineer | GenAI & Workflow Automation
 
-License
+## License
 
 All Rights Reserved.
 

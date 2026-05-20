@@ -141,31 +141,6 @@ Future layers can improve:
 - Reference-based generation
 - Local or cloud model routing
 
-## Public Repo Positioning
-
-The public version should position CineSync M1 as:
-
-> An AI-native filmmaking workflow prototype that converts script intent into structured scene planning, shot planning, camera controls, and video generation.
-
-Avoid positioning it as:
-
-- A finished production system
-- A full AI video platform
-- A complete replacement for directors or VFX teams
-
-## Recommended Demo Flow
-
-For recruiters, collaborators, or reviewers, demonstrate the project in this order:
-
-1. Show the script input.
-2. Generate scenes.
-3. Select one scene.
-4. Generate shot suggestions.
-5. Select one shot.
-6. Adjust lens, movement, and framing.
-7. Generate or show a sample video output.
-8. Explain how the architecture can support stronger models later.
-
 ## Key Takeaway
 
 CineSync M1 proves the core idea:

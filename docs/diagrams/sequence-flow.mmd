@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant U as User
+    participant FE as React Frontend
+    participant API as FastAPI Backend
+    participant P as Parser / Shot Logic
+    participant G as Generation Adapter
+    participant V as Video Model/API
+
+    U->>FE: Paste script
+    FE->>API: Send script for parsing
+    API->>P: Parse script into scenes
+    P-->>API: Return scene objects
+    API-->>FE: Display scenes
+
+    U->>FE: Select scene
+    FE->>API: Request shot suggestions
+    API->>P: Generate shots for scene
+    P-->>API: Return shot list
+    API-->>FE: Display shots
+
+    U->>FE: Select shot + camera controls
+    FE->>API: Submit generation request
+    API->>G: Build model-ready request
+    G->>V: Send request to generation provider
+    V-->>G: Return output/status
+    G-->>API: Return generated video data
+    API-->>FE: Display preview

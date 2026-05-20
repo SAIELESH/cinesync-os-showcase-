@@ -1,0 +1,32 @@
+flowchart LR
+    User[User / Director] --> UI[React + Vite Frontend]
+
+    subgraph Frontend[Frontend Workflow UI]
+        ScriptCol[Script Column]
+        EngCol[Engineering Column]
+        GenCol[Generation Column]
+    end
+
+    UI --> ScriptCol
+    UI --> EngCol
+    UI --> GenCol
+
+    ScriptCol --> API[FastAPI Backend]
+    EngCol --> API
+    GenCol --> API
+
+    subgraph Backend[Backend Orchestration Layer]
+        Parser[Script Parser]
+        Shots[Shot Generator]
+        Prompt[Prompt / Request Builder]
+        Generator[Generation Adapter]
+    end
+
+    API --> Parser
+    API --> Shots
+    API --> Prompt
+    API --> Generator
+
+    Generator --> Model[Video Generation API / Model]
+    Model --> Output[Generated Video Output]
+    Output --> GenCol

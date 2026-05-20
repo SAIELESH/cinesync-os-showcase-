@@ -1,0 +1,12 @@
+flowchart TD
+    A[Paste Script] --> B[Generate Scene Blocks]
+    B --> C[Review / Select Scene]
+    C --> D[Generate Shot Suggestions]
+    D --> E[Select Shot]
+    E --> F[Choose Lens]
+    F --> G[Choose Camera Movement]
+    G --> H[Choose Framing]
+    H --> I[Build Generation Request]
+    I --> J[Send to Video Model / API]
+    J --> K[Preview Generated Video]
+    K --> L[Download or Iterate]

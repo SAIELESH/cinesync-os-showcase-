@@ -1,0 +1,22 @@
+flowchart TD
+    App[App.jsx] --> Shell[AppShell]
+    Shell --> C1[Script Column]
+    Shell --> C2[Engineering Column]
+    Shell --> C3[Generation Column]
+
+    C1 --> ScriptInput[ScriptInput]
+    C1 --> SceneCard[SceneCard]
+
+    C2 --> ShotCard[ShotCard]
+    C2 --> LensPicker[LensPicker]
+    C2 --> MovementPicker[MovementPicker]
+    C2 --> FramingGrid[FramingGrid]
+
+    C3 --> GenerateButton[GenerateButton]
+    C3 --> PreviewBox[PreviewBox]
+    C3 --> DownloadButton[DownloadButton]
+
+    App --> Hooks[Custom Hooks]
+    Hooks --> UseScript[useScript]
+    Hooks --> UseShot[useShot]
+    Hooks --> UseGeneration[useGeneration]

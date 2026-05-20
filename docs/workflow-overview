@@ -1,0 +1,173 @@
+# CineSync OS M1 Workflow Overview
+
+## Purpose
+
+CineSync OS M1 is a proof-of-concept workflow for AI-assisted filmmaking. It demonstrates how a written script can be transformed into structured scene planning, shot planning, camera controls, and video generation.
+
+The system is designed as a director-facing workflow rather than a simple prompt box.
+
+## Workflow Summary
+
+```text
+Script → Scenes → Shots → Camera Controls → Generation Request → Video Preview
+```
+
+## Step 1: Script Input
+
+The user begins by entering or pasting a script into the Script Column.
+
+The script may include:
+
+- Scene descriptions
+- Character actions
+- Emotional beats
+- Dialogue or narration
+- Location and mood references
+
+The purpose of this stage is to capture creative intent in a flexible format.
+
+## Step 2: Script-to-Scene Parsing
+
+The script is converted into scene-level blocks.
+
+Each scene can contain:
+
+- Scene title or label
+- Location or setting
+- Action summary
+- Mood or tone
+- Key visual elements
+
+This makes the original script easier to plan, review, and convert into shots.
+
+## Step 3: Scene Selection
+
+The user selects a scene from the generated scene list.
+
+The selected scene becomes the active creative unit for shot planning.
+
+## Step 4: Shot Generation
+
+For the selected scene, the system generates multiple shot suggestions.
+
+A shot may include:
+
+- Shot description
+- Subject focus
+- Camera intent
+- Visual framing direction
+- Movement idea
+- Cinematic purpose
+
+The goal is to help the user move from story-level thinking to production-level planning.
+
+## Step 5: Camera Engineering Controls
+
+The user can adjust basic cinematography controls before generation.
+
+M1 includes controls such as:
+
+- Lens selection
+- Camera movement
+- Framing choice
+
+These controls help convert a generic visual idea into a more directable shot request.
+
+## Step 6: Prompt / Request Preparation
+
+The selected scene, selected shot, and selected camera controls are combined into a generation-ready request.
+
+In the public repo, this layer should be described at a high level only. The exact private prompt structure and advanced orchestration logic should remain private.
+
+## Step 7: Video Generation
+
+The generation layer sends the prepared request to a video-generation provider or model integration.
+
+In M1, this validates the end-to-end flow from script to generated output.
+
+## Step 8: Preview and Download
+
+The generated video is displayed in the Generation Column.
+
+The user can:
+
+- Preview the result
+- Review output quality
+- Download the result if available
+- Iterate on shot or camera inputs
+
+## M1 User Journey
+
+```text
+1. Paste script
+2. Generate scenes
+3. Select scene
+4. Generate shot list
+5. Choose shot
+6. Select lens / movement / framing
+7. Generate video
+8. Preview result
+```
+
+## Why This Workflow Matters
+
+Most AI video tools start with a blank prompt box. CineSync M1 explores a more structured direction:
+
+- The script remains the source of truth.
+- Scenes create structure.
+- Shots create production planning.
+- Camera controls make generation more directable.
+- The user remains involved at every stage.
+
+## M1 Boundaries
+
+M1 is intentionally basic and focused on proving workflow feasibility.
+
+It does not claim to solve the full AI filmmaking problem.
+
+M1 validates:
+
+- Workflow structure
+- UI interaction model
+- Basic AI-assisted planning
+- Generation pipeline connection
+
+Future layers can improve:
+
+- Character consistency
+- Style locking
+- Scene continuity
+- Multi-shot editing
+- Reference-based generation
+- Local or cloud model routing
+
+## Public Repo Positioning
+
+The public version should position CineSync M1 as:
+
+> An AI-native filmmaking workflow prototype that converts script intent into structured scene planning, shot planning, camera controls, and video generation.
+
+Avoid positioning it as:
+
+- A finished production system
+- A full AI video platform
+- A complete replacement for directors or VFX teams
+
+## Recommended Demo Flow
+
+For recruiters, collaborators, or reviewers, demonstrate the project in this order:
+
+1. Show the script input.
+2. Generate scenes.
+3. Select one scene.
+4. Generate shot suggestions.
+5. Select one shot.
+6. Adjust lens, movement, and framing.
+7. Generate or show a sample video output.
+8. Explain how the architecture can support stronger models later.
+
+## Key Takeaway
+
+CineSync M1 proves the core idea:
+
+> AI video generation becomes more useful when it is guided by a structured filmmaking workflow instead of isolated prompts.

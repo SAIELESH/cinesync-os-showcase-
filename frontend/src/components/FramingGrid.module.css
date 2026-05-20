@@ -1,0 +1,86 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Frame */
+
+.frame {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 16 / 9;
+
+  border-radius: 12px;
+
+  background: rgba(10, 15, 20, 0.8);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  overflow: hidden;
+
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Grid */
+
+.grid {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.cell {
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.cell:hover {
+  background: rgba(0, 212, 255, 0.06);
+}
+
+.cellActive {
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.cellActive::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+  margin: auto;
+
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: #00d4ff;
+
+  transition: all 0.2s ease;
+
+  box-shadow:
+    0 0 10px rgba(0, 212, 255, 0.8),
+    0 0 20px rgba(0, 212, 255, 0.6);
+}
+
+.hint {
+  text-align: center;
+
+  font-size: 10px;
+
+  color: rgba(255, 255, 255, 0.5);
+}

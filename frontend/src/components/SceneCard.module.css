@@ -1,0 +1,135 @@
+.card {
+  position: relative;
+  background: rgba(12, 20, 32, 0.75);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px 16px 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  animation: fadeSlideUp 0.35s var(--ease-out) both;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  will-change: transform;
+}
+.card:hover {
+  border-color: rgba(0,200,240,0.35);
+  background: rgba(14, 24, 38, 0.95);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.35),
+    0 0 10px rgba(0,200,240,0.08);
+}
+
+.cardActive {
+  border-color: var(--cyan) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(0,200,240,0.12),
+    rgba(10, 20, 30, 0.95)
+  ) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(0,200,240,0.4),
+    0 0 25px rgba(0,200,240,0.15);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.number {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-3);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.editBtn:hover { 
+  color: var(--cyan);
+  border-color: var(--cyan); 
+  background: rgba(0,200,240,0.12);
+  transform: scale(1.05);
+}
+
+.desc {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.65;
+}
+
+.editArea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.6;
+  resize: none;
+  display: block;
+}
+
+/* Active indicator line at bottom */
+.activeLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    220px circle at var(--x, 50%) var(--y, 50%),
+    rgba(0,200,240,0.10),
+    rgba(0,200,240,0.04) 30%,
+    transparent 60%
+  );
+
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.card:hover::after {
+  opacity: 1;
+}

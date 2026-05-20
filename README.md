@@ -42,6 +42,48 @@ The long-term vision includes:
 • Director-controlled generation
 • Model-agnostic video API integration
 
+## Screenshots
+
+### Full Workflow
+
+![Full Workflow](docs/screenshots/Full_workflow.png)
+
+---
+
+### Script & Scene Breakdown
+
+![Script Breakdown](docs/screenshots/script_breakdown.png)
+
+---
+
+### Shot Engineering
+
+![Shot Engineering](docs/screenshots/shot_engineering.png)
+
+---
+
+### Lens & Camera Controls
+
+![Lens Controls](docs/screenshots/lens_controls.png)
+
+---
+
+### Framing Controls
+
+![Framing Controls](docs/screenshots/Framing_Controls.png)
+
+---
+
+### Scene Cards
+
+![Scene Cards](docs/screenshots/scene_cards.png)
+
+---
+
+### Generation Panel
+
+![Generation Panel](docs/screenshots/generation_panel.png)
+
 ## Production workflow automation
 
 ### Tech Stack

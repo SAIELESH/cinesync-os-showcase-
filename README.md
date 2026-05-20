@@ -12,7 +12,7 @@ Most AI video tools depend heavily on manual prompting. CineSync OS explores a m
 
 ```text
 Script → Scenes → Shots → Camera Controls → Generation Prompt → AI Video Output
-
+```
 The goal is to help creators think like directors, not just prompt writers.
 
 Key Features

@@ -1,4 +1,4 @@
-# CineSync OS — AI Filmmaking & Director Operating System
+# CineSync OS: AI Filmmaking & Director Operating System
 
 CineSync OS is an AI-assisted filmmaking operating system that converts raw screenplays into structured scenes, multi-shot coverage, optical camera controls, and high-definition AI video outputs.
 

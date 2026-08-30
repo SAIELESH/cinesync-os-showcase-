@@ -31,31 +31,25 @@ export function HeroSection({ heroStats }: HeroSectionProps) {
           transition={{ duration: 0.55, delay: 0.05 }}
           className="mt-8"
         >
-          <div className="font-[var(--font-sora)] text-lg uppercase tracking-[0.5em] text-slate-400">CineSync</div>
+          <div className="font-[var(--font-sora)] text-lg uppercase tracking-[0.5em] text-slate-400">CineSync OS</div>
           <h1 className="mt-6 font-[var(--font-sora)] text-5xl font-semibold leading-tight text-white md:text-6xl">
-            Create <span className="text-gradient">consistent</span> cinematic videos without{" "}
-            <span className="text-gradient">prompt bottlenecks</span>
+            Turn screenplays into <span className="text-gradient">consistent</span> multi-shot scenes
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            Generate instantly, refine precisely, and take full control when it matters{" "}
-            <span aria-hidden="true">&mdash;</span> without prompt engineering.
+            Decompose scripts into structured shot coverage with Claude 3.5 Sonnet. Direct lens focal lengths, camera physics, and character locks before rendering on Wan2.2.
           </p>
           <p className="mt-4 text-sm font-medium text-gold">
-            <span aria-hidden="true">&#9889;</span> Get your first cinematic scene in under 30 seconds
+            <span aria-hidden="true">&#9889;</span> Zero prompt guesswork · Full multi-shot consistency
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Link href="/generate" className={buttonStyles({ size: "lg", className: "w-full sm:w-auto" })}>
-              <span aria-hidden="true">&#9889;</span> Generate Your First Scene
+            <Link href="/workflow" className={buttonStyles({ size: "lg", className: "w-full sm:w-auto gap-2" })}>
+              <Film className="size-4" />
+              Launch Studio Workflow
             </Link>
-            <Button
-              variant="secondary"
-              size="lg"
-              className="w-full gap-2 sm:w-auto"
-              onClick={() => setDemoOpen(true)}
-            >
-              <PlayCircle className="size-4" />
-              Watch Demo
-            </Button>
+            <Link href="/app" className={buttonStyles({ variant: "secondary", size: "lg", className: "w-full gap-2 sm:w-auto" })}>
+              <Sparkles className="size-4 text-gold" />
+              Director Studio Mode
+            </Link>
           </div>
           <p className="mt-4 text-center text-sm text-slate-400 sm:text-left">
             Stop fighting prompts. Start directing.

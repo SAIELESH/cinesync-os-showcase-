@@ -87,19 +87,23 @@ The long-term vision includes:
 ## Production workflow automation
 
 ### Tech Stack
-• Frontend
-• React
-• Vite
-• JavaScript
-• CSS Modules / Custom CSS
 
-### Backend
-• Python
-• FastAPI
+#### Frontend
+• **Next.js 15** (Pages Router)
+• **React 19**
+• **TypeScript 5.7**
+• **Tailwind CSS & PostCSS**
+• **Framer Motion & Lucide React**
 
-### AI / Generation Layer
-• LLM-based scene and shot generation
-• AI video generation API integration-ready architecture
+#### Backend
+• **Python 3.11+**
+• **FastAPI & Uvicorn**
+• **Pydantic**
+
+#### AI / Generation Layer
+• **Claude 3.5 Sonnet** (Script Parsing, Scene Decomposition & Shot Engineering)
+• **Wan-AI (Wan2.2) Diffusion Model** (Text-to-Video & Image-to-Video Generation)
+• **Structured Prompt Synthesis Engine** (Character Locks, Camera Vectors, Lighting)
 
 ## Repository Scope
 

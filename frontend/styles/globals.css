@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --font-sora: "Sora", "Avenir Next", "Segoe UI", sans-serif;
+  --font-inter: "Manrope", "Inter", "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  background-image:
+    radial-gradient(circle at top, rgba(125, 211, 252, 0.15), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(245, 200, 106, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(7, 10, 15, 1) 0%, rgba(5, 7, 11, 1) 52%, rgba(3, 5, 8, 1) 100%);
+  min-height: 100vh;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(125, 211, 252, 0.5) rgba(11, 17, 26, 1);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(11, 17, 26, 0.9);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(125, 211, 252, 0.4);
+  border-radius: 9999px;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #f5f7fa 0%, #f5c86a 34%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel-gradient {
+  background:
+    radial-gradient(circle at top left, rgba(125, 211, 252, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(11, 17, 26, 0.9);
+  backdrop-filter: blur(18px);
+}
+
+.grid-overlay {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.glass-border {
+  position: relative;
+}
+
+.glass-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.28), rgba(245, 200, 106, 0.16), rgba(255, 255, 255, 0.04));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.45) 0.6px, transparent 0.8px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.35) 0.7px, transparent 0.9px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -20% auto auto -10%;
+  width: 320px;
+  height: 320px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(125, 211, 252, 0.16), transparent 70%);
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+.gold-glow::after {
+  content: "";
+  position: absolute;
+  right: -5%;
+  bottom: -8%;
+  width: 240px;
+  height: 240px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(245, 200, 106, 0.16), transparent 68%);
+  filter: blur(18px);
+  pointer-events: none;
+}

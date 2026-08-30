@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Film, Upload, Loader2, Play } from "lucide-react";
 import { Button } from "@/components/global/ui/Button";
 import { Card } from "@/components/global/ui/Card";
-import { generateVideo, type Scene, type Shot, type Camera } from "@/lib/api";
+import { generateVideo, uploadImage, type Scene, type Shot, type Camera } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 type ShotConfigurationProps = {
@@ -32,6 +32,7 @@ export function ShotConfiguration({
   });
   const [useReference, setUseReference] = useState(false);
   const [imagePath, setImagePath] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,9 +42,17 @@ export function ShotConfiguration({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // For now, store the file path. In a real implementation, you'd upload to the server.
-    setImagePath(`/uploads/${file.name}`);
-    setUseReference(true);
+    setIsUploadingImage(true);
+    setError(null);
+    try {
+      const result = await uploadImage(file);
+      setImagePath(result.file_path);
+      setUseReference(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload reference image");
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleGenerateVideo = async () => {

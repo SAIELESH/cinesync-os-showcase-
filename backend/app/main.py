@@ -94,16 +94,16 @@ def build_prompt_endpoint(request: VideoRequest):
 
 @app.post("/generate-video")
 def generate_video_endpoint(request: VideoRequest):
-    """Submit a video generation job.
-
-    Public version uses mock mode by default. To connect a real provider,
-    set VIDEO_PROVIDER=real and implement provider credentials locally.
-    """
+    """Submit a video generation job."""
     if not request.scene or not request.shot:
         raise HTTPException(status_code=400, detail="Scene and shot are required")
 
     prompt = build_prompt(request.scene, request.shot, request.camera, request.use_reference)
-    result = submit_video_job(prompt=prompt, image_path=request.image_path)
+    result = submit_video_job(
+        prompt=prompt,
+        image_path=request.image_path,
+        use_reference=request.use_reference
+    )
     return result
 
 
@@ -114,9 +114,19 @@ def video_status(task_id: str):
 
 
 @app.post("/upload-image")
-def upload_image(file: UploadFile = File(...)):
-    """Demo endpoint. In production, upload to object storage instead."""
+async def upload_image(file: UploadFile = File(...)):
+    """Upload reference image for consistent character and style conditioning."""
+    import os
+    upload_dir = os.path.join(os.path.dirname(__file__), "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    file_path = os.path.join(upload_dir, file.filename)
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+        
     return {
+        "file_path": file_path,
         "filename": file.filename,
-        "message": "Image upload endpoint placeholder for showcase repo.",
+        "message": "Image uploaded successfully.",
     }

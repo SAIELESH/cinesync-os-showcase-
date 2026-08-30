@@ -9,7 +9,7 @@ export default function QuickGeneratePage() {
     "A man walking in rain under neon lights, cinematic reflections, slow emotional reveal."
   );
   const [styles, setStyles] = useState<string[]>(["Cinematic", "Dark"]);
-  const { state, progress, activeStep, generate, reset } = useGenerateVideo();
+  const { state, progress, activeStep, videoUrl, generate, reset } = useGenerateVideo();
 
   const resultTitle = useMemo(() => {
     if (!concept.trim()) {
@@ -29,7 +29,7 @@ export default function QuickGeneratePage() {
             loading={state === "loading"}
             onConceptChange={setConcept}
             onStylesChange={setStyles}
-            onGenerate={() => generate(concept)}
+            onGenerate={() => generate(concept, styles)}
             onReset={reset}
           />
 
@@ -40,6 +40,11 @@ export default function QuickGeneratePage() {
               activeStep={activeStep}
               resultTitle={resultTitle}
               styles={styles}
+              videoUrl={videoUrl}
+              onImprove={() => {
+                setConcept((prev) => `${prev} Highly detailed cinematic lighting, atmospheric 8k film quality.`);
+                generate(`${concept} Highly detailed cinematic lighting, atmospheric 8k film quality.`, styles);
+              }}
             />
           </div>
         </div>

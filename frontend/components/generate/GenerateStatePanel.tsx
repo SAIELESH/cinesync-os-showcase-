@@ -11,6 +11,8 @@ type GenerateStatePanelProps = {
   activeStep: string;
   resultTitle: string;
   styles: string[];
+  videoUrl?: string;
+  onImprove?: () => void;
 };
 
 export function GenerateStatePanel({
@@ -18,7 +20,9 @@ export function GenerateStatePanel({
   progress,
   activeStep,
   resultTitle,
-  styles
+  styles,
+  videoUrl,
+  onImprove
 }: GenerateStatePanelProps) {
   if (state === "idle") {
     return (
@@ -112,13 +116,14 @@ export function GenerateStatePanel({
       </div>
       <div className="mt-6">
         <VideoPlayer
+          src={videoUrl}
           title={resultTitle}
           subtitle={`Style blend: ${styles.join(" · ")}. Cinematic consistency and camera parameters locked.`}
           aspect="wide"
         />
       </div>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button variant="secondary" className="gap-2">
+        <Button variant="secondary" className="gap-2" onClick={onImprove}>
           <WandSparkles className="size-4" />
           Improve
         </Button>
@@ -129,7 +134,16 @@ export function GenerateStatePanel({
           <Settings2 className="size-4" />
           Advanced Control
         </Link>
-        <Button className="gap-2">
+        <Button
+          className="gap-2"
+          onClick={() => {
+            if (videoUrl) {
+              window.open(videoUrl, "_blank");
+            } else {
+              alert("Cinematic prompt and shot parameters compiled. Supply SILICONFLOW_API_KEY to download live rendered MP4.");
+            }
+          }}
+        >
           <Download className="size-4" />
           Download
         </Button>

@@ -1,7 +1,5 @@
-"use client";
-
-import { useState } from "react";
-import { Plus, Trash2, Clapperboard, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, AlertCircle, Clapperboard, Loader2 } from "lucide-react";
 import { Button } from "@/components/global/ui/Button";
 import { Card } from "@/components/global/ui/Card";
 import { generateShots, type Scene, type Shot } from "@/lib/api";
@@ -23,6 +21,16 @@ export function SceneEditor({
   );
   const [generatingShotFor, setGeneratingShotFor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (scenes.length > 0) {
+      if (!selectedSceneId || !scenes.some((s) => s.id === selectedSceneId)) {
+        setSelectedSceneId(scenes[0].id);
+      }
+    } else {
+      setSelectedSceneId(null);
+    }
+  }, [scenes, selectedSceneId]);
 
   const selectedScene = scenes.find((s) => s.id === selectedSceneId) || scenes[0];
 
@@ -178,7 +186,7 @@ export function SceneEditor({
 
           {error && (
             <div className="flex items-center gap-3 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-rose-200">
-              <Trash2 className="size-5 shrink-0" />
+              <AlertCircle className="size-5 shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
           )}

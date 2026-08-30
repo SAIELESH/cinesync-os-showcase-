@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CirclePlus,
@@ -11,6 +12,7 @@ import {
   Upload,
   Loader2,
   FileText,
+  Check,
   ChevronDown,
   ChevronUp
 } from "lucide-react";
@@ -26,7 +28,7 @@ import { Toggle } from "@/components/global/ui/Toggle";
 import { VideoPlayer } from "@/components/global/ui/VideoPlayer";
 import { parseScript, generateShots, generateVideo, checkVideoStatus, uploadImage } from "@/lib/api";
 import type { Scene as APIScene, Shot as APIShot } from "@/lib/api";
-import { demoStatuses, scenes } from "@/lib/data";
+import { scenes, projects, type Scene } from "@/lib/data";
 import { cn, formatCredits } from "@/lib/utils";
 
 const lensOptions = ["Wide", "Natural", "Close"] as const;
@@ -34,13 +36,11 @@ const movementOptions = ["Static", "Dolly", "Tracking"] as const;
 const framingOptions = ["Center", "Rule of Thirds", "Over Shoulder"] as const;
 const improveOptions = ["More cinematic", "More emotional", "Change camera style", "Fix consistency"];
 const regenerateOptions = ["More emotional", "Change camera angle", "Improve lighting", "Fix consistency"];
-const directorSignals = [
-  ["Active scene", "03 live sequences"],
-  ["Locked identity", "Character + style preserved"],
-  ["Shot edits", "Selective regeneration only"]
-];
 
 export default function DirectorModePage() {
+  const router = useRouter();
+  const [currentScenes, setCurrentScenes] = useState<Scene[]>(scenes);
+  const [activeProjectName, setActiveProjectName] = useState<string>("CineSync Director Mode");
   const [autoMode, setAutoMode] = useState(true);
   const [selectedSceneId, setSelectedSceneId] = useState(scenes[0].id);
   const [selectedShotId, setSelectedShotId] = useState(scenes[0].shots[0].id);
@@ -60,6 +60,16 @@ export default function DirectorModePage() {
   const [improveSelection, setImproveSelection] = useState(improveOptions[0]);
   const [improveIntensity, setImproveIntensity] = useState(62);
 
+  // Handle deep linking from /dashboard?project=id
+  useEffect(() => {
+    if (router.query.project) {
+      const match = projects.find((p) => p.id === router.query.project);
+      if (match) {
+        setActiveProjectName(match.name);
+      }
+    }
+  }, [router.query.project]);
+
   // Backend Integration State
   const [scriptPanelOpen, setScriptPanelOpen] = useState(false);
   const [scriptInput, setScriptInput] = useState("");
@@ -76,8 +86,8 @@ export default function DirectorModePage() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const selectedScene = useMemo(
-    () => scenes.find((scene) => scene.id === selectedSceneId) ?? scenes[0],
-    [selectedSceneId]
+    () => currentScenes.find((scene) => scene.id === selectedSceneId) ?? currentScenes[0] ?? scenes[0],
+    [currentScenes, selectedSceneId]
   );
 
   const selectedShot = useMemo(
@@ -96,8 +106,10 @@ export default function DirectorModePage() {
 
   const handleSceneChange = (sceneId: string) => {
     setSelectedSceneId(sceneId);
-    const nextScene = scenes.find((scene) => scene.id === sceneId) ?? scenes[0];
-    setSelectedShotId(nextScene.shots[0].id);
+    const nextScene = currentScenes.find((scene) => scene.id === sceneId) ?? currentScenes[0];
+    if (nextScene && nextScene.shots.length > 0) {
+      setSelectedShotId(nextScene.shots[0].id);
+    }
     setPreviewVersion((current) => current + 1);
   };
 
@@ -108,6 +120,7 @@ export default function DirectorModePage() {
 
   const handleRegenerate = () => {
     setPreviewVersion((current) => current + 1);
+    handleGenerateVideoWithBackend();
   };
 
   const updateLock = (key: keyof typeof consistencyLocks) => {
@@ -149,6 +162,43 @@ export default function DirectorModePage() {
     } finally {
       setIsGeneratingShots(false);
     }
+  };
+
+  const handleApplyParsedScenes = () => {
+    if (parsedScenes.length === 0) return;
+    const formatted: Scene[] = parsedScenes.map((ps, idx) => ({
+      id: ps.id || `scene-${idx + 1}`,
+      title: ps.title || `Scene ${idx + 1}`,
+      description: ps.description || ps.action || "",
+      duration: ps.duration || "00:15",
+      status: "Ready",
+      shots:
+        generatedShots.length > 0
+          ? generatedShots.map((gs, sIdx) => ({
+              id: gs.id || `shot-${sIdx + 1}`,
+              name: gs.type || `Shot ${sIdx + 1}`,
+              description: `${gs.camera_movement}, ${gs.lens}, ${gs.lighting}`,
+              thumbnailLabel: gs.type,
+              duration: "4s",
+            }))
+          : [
+              {
+                id: `shot-default-${idx + 1}`,
+                name: "Wide Establishing",
+                description: `${ps.environment} - ${ps.character}`,
+                thumbnailLabel: "Establishing shot",
+                duration: "4s",
+              },
+            ],
+    }));
+
+    setCurrentScenes(formatted);
+    setSelectedSceneId(formatted[0].id);
+    if (formatted[0].shots.length > 0) {
+      setSelectedShotId(formatted[0].shots[0].id);
+    }
+    setParsedScenes([]);
+    setGeneratedShots([]);
   };
 
   const handleGenerateVideoWithBackend = async () => {
@@ -253,7 +303,7 @@ export default function DirectorModePage() {
                 <Clapperboard className="size-6" />
               </div>
               <div>
-                <div className="font-[var(--font-sora)] text-2xl font-semibold text-white">CineSync Director Mode</div>
+                <div className="font-[var(--font-sora)] text-2xl font-semibold text-white">{activeProjectName}</div>
                 <div className="text-sm text-slate-400">Direct scenes with cinematic consistency controls and shot-level regeneration.</div>
               </div>
             </div>
@@ -265,7 +315,11 @@ export default function DirectorModePage() {
             </div>
           </Card>
           <div className="mb-6 grid gap-4 md:grid-cols-3">
-            {directorSignals.map(([label, value]) => (
+            {[
+              ["Active scene", `${String(currentScenes.length).padStart(2, "0")} live sequences`],
+              ["Locked identity", "Character + style preserved"],
+              ["Shot edits", "Selective regeneration only"]
+            ].map(([label, value]) => (
               <Card key={label} className="p-4">
                 <div className="text-xs uppercase tracking-[0.28em] text-slate-500">{label}</div>
                 <div className="mt-2 font-[var(--font-sora)] text-xl text-white">{value}</div>
@@ -291,7 +345,7 @@ export default function DirectorModePage() {
                 </Button>
               </div>
               <div className="space-y-3">
-                {scenes.map((scene) => {
+                {currentScenes.map((scene) => {
                   const active = scene.id === selectedScene.id;
 
                   return (
@@ -568,7 +622,11 @@ export default function DirectorModePage() {
               <Card className="p-5">
                 <div className="mb-4 font-[var(--font-sora)] text-xl text-white">Consistency Status</div>
                 <div className="grid gap-3">
-                  {demoStatuses.map((status) => (
+                  {[
+                    `Character: ${consistencyLocks.character ? "Stable (Locked)" : "Drift Risk (Unlocked)"}`,
+                    `Lighting: ${consistencyLocks.camera ? "Directional Lock Active" : "Adaptive Match"}`,
+                    `Style: ${consistencyLocks.style ? "Preset Bound (Locked)" : "Free Variation"}`
+                  ].map((status) => (
                     <div key={status} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-slate-300">
                       {status}
                     </div>
@@ -760,13 +818,21 @@ export default function DirectorModePage() {
             </div>
           )}
 
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={() => { setParsedScenes([]); setGeneratedShots([]); }}
-          >
-            Close
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              className="flex-1 gap-2"
+              onClick={handleApplyParsedScenes}
+            >
+              <Check className="size-4" />
+              Apply to Director Studio Workspace
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => { setParsedScenes([]); setGeneratedShots([]); }}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </Modal>
 

@@ -222,7 +222,7 @@ export default function WorkflowPage() {
                           🔑 Ready for Live AI Video Rendering
                         </div>
                         <p className="mt-1 text-xs text-slate-300">
-                          The screenplay prompt has been compiled and validated. To generate real video MP4s directly from Wan-AI (Wan2.2), provide your <code>SILICONFLOW_API_KEY</code> in <code>.env</code>.
+                          The screenplay prompt has been compiled and validated. To render real AI video MP4s directly with Wan-AI (Wan2.2), add your SiliconFlow API Key via the BYOK button in the top navigation.
                         </p>
                       </div>
                     </div>

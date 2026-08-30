@@ -42,9 +42,11 @@ export default function WorkflowPage() {
       try {
         const status = await checkVideoStatus(generatedTaskId);
 
-        if (status.status === "ready" && status.video_url) {
+        if (status.status === "ready") {
           setVideoStatus("ready");
-          setVideoUrl(status.video_url);
+          if (status.video_url) {
+            setVideoUrl(status.video_url);
+          }
         } else if (status.status === "failed" || status.status === "error") {
           setVideoStatus("error");
         } else if (status.status === "processing") {
@@ -55,7 +57,7 @@ export default function WorkflowPage() {
       }
     };
 
-    setTimeout(pollStatus, 3000); // Start polling after 3 seconds
+    setTimeout(pollStatus, 1500); // Start polling
   };
 
   return (
@@ -161,28 +163,67 @@ export default function WorkflowPage() {
                 </Card>
               )}
 
-              {videoStatus === "ready" && videoUrl && (
-                <Card className="gold-glow p-6">
-                  <div className="mb-4">
-                    <div className="text-sm uppercase tracking-[0.28em] text-emerald">
-                      Success
+              {videoStatus === "ready" && (
+                <Card className="gold-glow p-6 lg:p-8 space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm uppercase tracking-[0.28em] text-emerald">
+                        {videoUrl ? "Live AI Video Ready" : "Cinematic Blueprint Compiled"}
+                      </div>
+                      <div className="mt-1 font-[var(--font-sora)] text-xl font-semibold text-white">
+                        {currentScene?.title || "Director Shot Plan"}
+                      </div>
                     </div>
-                    <div className="mt-1 font-[var(--font-sora)] text-xl text-white">
-                      Video Ready
-                    </div>
+                    <span className="rounded-full bg-emerald/12 px-3 py-1 text-xs uppercase tracking-[0.22em] text-emerald">
+                      {videoUrl ? "Wan2.2 Output" : "Blueprint Mode"}
+                    </span>
                   </div>
-                  <video
-                    src={videoUrl}
-                    controls
-                    className="w-full rounded-2xl"
-                  />
-                  <a
-                    href={videoUrl}
-                    download
-                    className="mt-4 block text-center text-sm text-accent hover:underline"
-                  >
-                    Download Video
-                  </a>
+
+                  {videoUrl ? (
+                    <div>
+                      <video
+                        src={videoUrl}
+                        controls
+                        autoPlay
+                        className="w-full rounded-2xl"
+                      />
+                      <a
+                        href={videoUrl}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-4 block text-center text-sm font-medium text-accent hover:underline"
+                      >
+                        Download Video
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
+                        <div className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                          Scene & Character Directive
+                        </div>
+                        <p className="text-sm text-slate-200">
+                          <strong>Location:</strong> {currentScene?.environment || "Cinematic environment"}
+                        </p>
+                        <p className="text-sm text-slate-200">
+                          <strong>Character Lock:</strong> {currentScene?.character || "Main character"}
+                        </p>
+                        <p className="text-sm text-slate-200">
+                          <strong>Action:</strong> {currentScene?.action || "Cinematic movement"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-accent/30 bg-accent/10 p-4">
+                        <div className="text-sm font-semibold text-white">
+                          🔑 Ready for Live AI Video Rendering
+                        </div>
+                        <p className="mt-1 text-xs text-slate-300">
+                          The screenplay prompt has been compiled and validated. To generate real video MP4s directly from Wan-AI (Wan2.2), provide your <code>SILICONFLOW_API_KEY</code> in <code>.env</code>.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </Card>
               )}
 

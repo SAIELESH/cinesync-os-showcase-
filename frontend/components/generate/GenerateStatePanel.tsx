@@ -112,9 +112,8 @@ export function GenerateStatePanel({
       </div>
       <div className="mt-6">
         <VideoPlayer
-          src="/demo-video.mp4"
           title={resultTitle}
-          subtitle={`Style blend: ${styles.join(" · ")}. Consistency pass applied automatically for preview output.`}
+          subtitle={`Style blend: ${styles.join(" · ")}. Cinematic consistency and camera parameters locked.`}
           aspect="wide"
         />
       </div>

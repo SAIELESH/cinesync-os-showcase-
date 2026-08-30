@@ -117,7 +117,36 @@ It includes selected frontend, workflow, and documentation files to demonstrate:
 • UI implementation
 • End-to-end prototype direction
 
-Some proprietary workflow logic, advanced prompt engineering, and future roadmap details are intentionally excluded.
+## Running Locally & API Keys (Bring Your Own Key)
+
+CineSync OS runs out-of-the-box in **Blueprint / Showcase Mode** with zero configuration.
+
+To enable **Live AI Script Parsing and Video Rendering**, add your API keys:
+
+1. **Backend Setup:**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   cp env.example .env
+   ```
+2. **Add Your Keys to `backend/.env`:**
+   ```env
+   # SiliconFlow API Key for Wan2.2 Text-to-Video generation:
+   SILICONFLOW_API_KEY=your_key_here
+
+   # Anthropic API Key for Claude 3.5 Sonnet script analysis:
+   ANTHROPIC_API_KEY=your_key_here
+   ```
+3. **Start the Backend:**
+   ```bash
+   python app/main.py
+   ```
+4. **Start the Next.js Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
 ## Suggested Workflow
 

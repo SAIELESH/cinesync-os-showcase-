@@ -140,7 +140,7 @@ export function GenerateStatePanel({
             if (videoUrl) {
               window.open(videoUrl, "_blank");
             } else {
-              alert("Cinematic prompt and shot parameters compiled. Supply SILICONFLOW_API_KEY to download live rendered MP4.");
+              alert("Cinematic prompt and shot parameters compiled. Add your SiliconFlow API Key via the BYOK button in the top navigation to render and download live MP4 videos.");
             }
           }}
         >

@@ -693,7 +693,7 @@ export default function DirectorModePage() {
                     if (videoUrl) {
                       window.open(videoUrl, "_blank");
                     } else {
-                      alert("Shot blueprint compiled and validated. Connect SILICONFLOW_API_KEY to download live rendered MP4.");
+                      alert("Shot blueprint compiled and validated. Add your SiliconFlow API Key via the BYOK button in the top navigation to render and download live MP4 videos.");
                     }
                   }}
                 >
@@ -878,7 +878,7 @@ export default function DirectorModePage() {
                     Camera: <strong>{movement}</strong> motion with <strong>{lens}</strong> lens and <strong>{framing}</strong> framing.
                   </p>
                   <p className="text-xs text-slate-400">
-                    To render actual AI video with Wan-AI (Wan2.2), provide <code>SILICONFLOW_API_KEY</code> in <code>.env</code>.
+                    To render live AI video with Wan-AI (Wan2.2), add your SiliconFlow API Key via the <strong>Add BYOK Key</strong> button in the top navigation.
                   </p>
                 </div>
               )}

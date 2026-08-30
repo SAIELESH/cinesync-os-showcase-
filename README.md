@@ -29,43 +29,6 @@ The goal is to empower creators and production teams to think like directors, no
 
 ---
 
-## 📸 Interface Showcase
-
-### Full Filmmaking Workflow
-![Full Workflow](docs/screenshots/Full_workflow.png)
-
----
-
-### Script & Scene Breakdown
-![Script Breakdown](docs/screenshots/script_breakdown.png)
-
----
-
-### Shot Engineering & Cinematography
-![Shot Engineering](docs/screenshots/shot_engineering.png)
-
----
-
-### Lens & Camera Controls
-![Lens Controls](docs/screenshots/lens_controls.png)
-
----
-
-### Framing Controls
-![Framing Controls](docs/screenshots/Framing_Controls.png)
-
----
-
-### Scene Cards & Sequence Stack
-![Scene Cards](docs/screenshots/scene_cards.png)
-
----
-
-### Generation Panel & Live Video Player
-![Generation Panel](docs/screenshots/generation_panel.png)
-
----
-
 ## 🛠️ Tech Stack
 
 #### Frontend

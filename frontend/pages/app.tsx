@@ -86,6 +86,12 @@ export default function DirectorModePage() {
   const [useReferenceImage, setUseReferenceImage] = useState(false);
   const [referenceImagePath, setReferenceImagePath] = useState("");
   const [apiError, setApiError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showNotification = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const selectedScene = useMemo(
     () => currentScenes.find((scene) => scene.id === selectedSceneId) ?? currentScenes[0] ?? scenes[0],
@@ -615,7 +621,16 @@ export default function DirectorModePage() {
                     <WandSparkles className="size-4" />
                     Fix Consistency
                   </Button>
-                  <Button className="gap-2">
+                  <Button
+                    className="gap-2"
+                    onClick={() => {
+                      if (videoUrl) {
+                        window.open(videoUrl, "_blank");
+                      } else {
+                        showNotification("Shot blueprint compiled and validated. Add your SiliconFlow API Key via the BYOK button in the top navigation to render and download live MP4 videos.");
+                      }
+                    }}
+                  >
                     <Download className="size-4" />
                     Download Shot
                   </Button>
@@ -693,7 +708,7 @@ export default function DirectorModePage() {
                     if (videoUrl) {
                       window.open(videoUrl, "_blank");
                     } else {
-                      alert("Shot blueprint compiled and validated. Add your SiliconFlow API Key via the BYOK button in the top navigation to render and download live MP4 videos.");
+                      showNotification("Shot blueprint compiled and validated. Add your SiliconFlow API Key via the BYOK button in the top navigation to render and download live MP4 videos.");
                     }
                   }}
                 >
@@ -914,6 +929,34 @@ export default function DirectorModePage() {
           }}
         />
       </Modal>
+
+      {/* Floating In-App Notification Toast */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-50 max-w-md rounded-2xl border border-accent/40 bg-[#0c121c]/95 p-4 shadow-2xl backdrop-blur-xl"
+          >
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-accent/20 p-2 text-accent">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="flex-1 text-sm text-slate-200">
+                {toastMessage}
+              </div>
+              <button
+                type="button"
+                onClick={() => setToastMessage(null)}
+                className="text-xs text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AppShell>
   );
 }

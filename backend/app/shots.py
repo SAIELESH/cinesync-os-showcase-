@@ -5,7 +5,7 @@ Supports:
 2. Context-aware local cinematography planner tailoring focal lengths, lighting, and camera movement.
 """
 
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import os
 import json
 import re

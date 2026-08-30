@@ -5,7 +5,7 @@ Supports:
 2. Robust local screenplay parser that properly handles sluglines (INT/EXT) without splitting abbreviations.
 """
 
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import os
 import re
 import json

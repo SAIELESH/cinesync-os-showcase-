@@ -41,10 +41,14 @@ export function CreditsPanel() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-emerald/20 bg-emerald/10 p-5">
+        <div className="mt-6 rounded-2xl border border-accent/20 bg-accent/10 p-5">
           <div className="text-sm font-medium text-white">Plan health: {user.plan}</div>
           <p className="mt-2 text-sm text-slate-200">
-            Your current balance covers approximately {Math.floor(user.credits / 65)} more standard multi-shot scenes.
+            {user.credits > 0
+              ? `Your current balance covers approximately ${Math.floor(user.credits / 65)} more standard multi-shot scenes.`
+              : user.siliconFlowKey
+              ? "BYOK API Key active — unlimited live rendering enabled via your SiliconFlow key."
+              : "0 credits available. Sign in to claim starter credits, top up, or add your BYOK API key in the top nav."}
           </p>
         </div>
 

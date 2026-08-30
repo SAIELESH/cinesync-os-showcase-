@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface UserAccount {
   name: string;
@@ -10,14 +10,14 @@ export interface UserAccount {
   isLoggedIn: boolean;
 }
 
-const DEFAULT_USER: UserAccount = {
-  name: "Sailesh Krishnan",
-  email: "director@cinesync.ai",
-  plan: "Creator Pro",
-  credits: 1240,
+const DEFAULT_GUEST: UserAccount = {
+  name: "Guest Filmmaker",
+  email: "",
+  plan: "Free Tier",
+  credits: 0,
   siliconFlowKey: "",
   anthropicKey: "",
-  isLoggedIn: true,
+  isLoggedIn: false,
 };
 
 interface AuthContextType {
@@ -32,14 +32,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserAccount>(DEFAULT_USER);
+  const [user, setUser] = useState<UserAccount>(DEFAULT_GUEST);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("cinesync_user");
       if (saved) {
-        setUser(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // If not logged in and no API keys, enforce 0 credits
+        if (!parsed.isLoggedIn && !parsed.siliconFlowKey && !parsed.anthropicKey) {
+          parsed.credits = 0;
+        }
+        setUser(parsed);
       }
     } catch {
       // Ignore local storage error
@@ -63,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       email,
       name: name || email.split("@")[0] || "Director",
+      plan: "Creator Pro",
+      credits: prev.credits > 0 ? prev.credits : 1240,
       isLoggedIn: true,
     }));
   };
@@ -72,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: "Guest Filmmaker",
       email: "",
       plan: "Free Tier",
-      credits: 200,
+      credits: 0,
       siliconFlowKey: "",
       anthropicKey: "",
       isLoggedIn: false,

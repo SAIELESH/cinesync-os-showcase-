@@ -4,7 +4,12 @@ FastAPI service powering the cinematic AI filmmaking pipeline:
 Script -> Scenes -> Shots -> Prompt -> Video Generation.
 """
 
+import os
+import sys
 from typing import Any, Dict, Optional
+
+# Ensure local module imports resolve cleanly across cloud deployment environments
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware

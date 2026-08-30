@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Film, Upload, Loader2, Play } from "lucide-react";
 import { Button } from "@/components/global/ui/Button";
 import { Card } from "@/components/global/ui/Card";
@@ -36,7 +34,34 @@ export function ShotConfiguration({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (shots.length > 0) {
+      if (!selectedShotId || !shots.some((s) => s.id === selectedShotId)) {
+        const first = shots[0];
+        setSelectedShotId(first.id);
+        if (first.lens || first.camera_movement || first.framing) {
+          setCamera({
+            lens: first.lens || "35mm",
+            movement: first.camera_movement || "static",
+            framing: first.framing || "rule of thirds",
+          });
+        }
+      }
+    } else {
+      setSelectedShotId(null);
+    }
+  }, [shots, selectedShotId]);
+
   const selectedShot = shots.find((s) => s.id === selectedShotId) || shots[0];
+
+  const handleSelectShot = (shot: Shot) => {
+    setSelectedShotId(shot.id);
+    setCamera({
+      lens: shot.lens || "35mm",
+      movement: shot.camera_movement || "static",
+      framing: shot.framing || "rule of thirds",
+    });
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,7 +137,7 @@ export function ShotConfiguration({
           {shots.map((shot) => (
             <button
               key={shot.id}
-              onClick={() => setSelectedShotId(shot.id)}
+              onClick={() => handleSelectShot(shot)}
               className={cn(
                 "rounded-2xl border p-4 text-left transition",
                 selectedShotId === shot.id

@@ -29,6 +29,7 @@ import { VideoPlayer } from "@/components/global/ui/VideoPlayer";
 import { parseScript, generateShots, generateVideo, checkVideoStatus, uploadImage } from "@/lib/api";
 import type { Scene as APIScene, Shot as APIShot } from "@/lib/api";
 import { scenes, projects, type Scene } from "@/lib/data";
+import { useAuth } from "@/lib/auth";
 import { cn, formatCredits } from "@/lib/utils";
 
 const lensOptions = ["Wide", "Natural", "Close"] as const;
@@ -39,6 +40,7 @@ const regenerateOptions = ["More emotional", "Change camera angle", "Improve lig
 
 export default function DirectorModePage() {
   const router = useRouter();
+  const { user, deductCredits } = useAuth();
   const [currentScenes, setCurrentScenes] = useState<Scene[]>(scenes);
   const [activeProjectName, setActiveProjectName] = useState<string>("CineSync Director Mode");
   const [autoMode, setAutoMode] = useState(true);
@@ -246,6 +248,7 @@ export default function DirectorModePage() {
       });
 
       setVideoTaskId(result.task_id);
+      deductCredits(20);
       
       // Start polling for status
       pollVideoStatus(result.task_id);
@@ -310,7 +313,7 @@ export default function DirectorModePage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Toggle checked={autoMode} label={`Auto Mode ${autoMode ? "ON" : "OFF"}`} onChange={setAutoMode} />
               <div className="rounded-xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-white">
-                {formatCredits(1240)}
+                {formatCredits(user.credits)}
               </div>
             </div>
           </Card>

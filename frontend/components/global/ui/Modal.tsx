@@ -21,6 +21,7 @@ export function Modal({ open, title, description, onClose, children }: ModalProp
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onClick={onClose}
         >
           <motion.div
             className="w-full max-w-2xl"
@@ -28,6 +29,7 @@ export function Modal({ open, title, description, onClose, children }: ModalProp
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            onClick={(e) => e.stopPropagation()}
           >
             <Card className="p-6">
               <div className="mb-6 flex items-start justify-between gap-4">

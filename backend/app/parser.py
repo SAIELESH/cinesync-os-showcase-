@@ -33,12 +33,13 @@ def _split_screenplay_scenes(script: str) -> List[str]:
     return cleaned[:6]
 
 
-def parse_script_to_scenes(script: str) -> List[Dict[str, Any]]:
+def parse_script_to_scenes(script: str, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
     """Convert raw script text into structured cinematic scenes."""
-    if ANTHROPIC_KEY:
+    active_key = api_key or ANTHROPIC_KEY
+    if active_key:
         try:
             import anthropic
-            client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+            client = anthropic.Anthropic(api_key=active_key)
             prompt = f"""Break the following script into 3–6 cinematic scene units.
 Return a valid JSON array only with no markdown formatting.
 Each object must contain:

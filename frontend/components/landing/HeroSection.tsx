@@ -68,7 +68,7 @@ export function HeroSection({ heroStats }: HeroSectionProps) {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-slate-500">*Based on internal testing</p>
+          <p className="mt-3 text-xs text-slate-500">*Benchmarked against standard multi-prompt iteration workflows</p>
         </motion.div>
       </div>
 

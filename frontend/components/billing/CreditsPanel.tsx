@@ -3,15 +3,16 @@ import { CreditCard, ShoppingCart, Check, Zap } from "lucide-react";
 import { Button } from "@/components/global/ui/Button";
 import { Card } from "@/components/global/ui/Card";
 import { Modal } from "@/components/global/ui/Modal";
+import { useAuth } from "@/lib/auth";
 import { formatCredits } from "@/lib/utils";
 
 export function CreditsPanel() {
-  const [credits, setCredits] = useState(1240);
+  const { user, addCredits } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
   const handleBuy = (amount: number) => {
-    setCredits((prev) => prev + amount);
+    addCredits(amount);
     setAddedSuccess(true);
     setTimeout(() => {
       setAddedSuccess(false);
@@ -34,16 +35,16 @@ export function CreditsPanel() {
 
         <div className="mt-8 rounded-[28px] border border-white/8 bg-white/5 p-6">
           <div className="text-sm uppercase tracking-[0.28em] text-slate-400">Available Balance</div>
-          <div className="mt-3 font-[var(--font-sora)] text-5xl font-semibold text-white">{formatCredits(credits)}</div>
+          <div className="mt-3 font-[var(--font-sora)] text-5xl font-semibold text-white">{formatCredits(user.credits)}</div>
           <p className="mt-4 max-w-xl text-sm text-slate-300">
             Credits are consumed across generation, consistency passes, and high-res video rendering.
           </p>
         </div>
 
         <div className="mt-6 rounded-2xl border border-emerald/20 bg-emerald/10 p-5">
-          <div className="text-sm font-medium text-white">Plan health: Studio Pro</div>
+          <div className="text-sm font-medium text-white">Plan health: {user.plan}</div>
           <p className="mt-2 text-sm text-slate-200">
-            Your current balance covers approximately {Math.floor(credits / 65)} more standard multi-shot scenes.
+            Your current balance covers approximately {Math.floor(user.credits / 65)} more standard multi-shot scenes.
           </p>
         </div>
 

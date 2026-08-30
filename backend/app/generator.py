@@ -31,12 +31,14 @@ def encode_image(image_path: str) -> Optional[str]:
 def submit_video_job(
     prompt: str,
     image_path: Optional[str] = None,
-    use_reference: bool = False
+    use_reference: bool = False,
+    api_key: Optional[str] = None
 ) -> Dict[str, Any]:
     """Submit video generation request to Wan2.2 or fallback to showcase mode."""
-    if API_KEY:
+    active_key = api_key or API_KEY
+    if active_key:
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {active_key}",
             "Content-Type": "application/json"
         }
         payload: Dict[str, Any] = {
@@ -78,16 +80,17 @@ def submit_video_job(
         "task_id": task_id,
         "status": "ready",
         "prompt": prompt,
-        "message": "Cinematic blueprint compiled. Set SILICONFLOW_API_KEY in .env to generate live AI video.",
+        "message": "Cinematic blueprint compiled. Bring Your Own Key (BYOK) enabled — add your SiliconFlow API Key to render live AI video.",
         "is_live": False
     }
 
 
-def check_video_status(task_id: str) -> Dict[str, Any]:
+def check_video_status(task_id: str, api_key: Optional[str] = None) -> Dict[str, Any]:
     """Poll video status from live API or return showcase blueprint."""
-    if API_KEY and not task_id.startswith("demo_") and not task_id.startswith("mock_"):
+    active_key = api_key or API_KEY
+    if active_key and not task_id.startswith("demo_") and not task_id.startswith("mock_"):
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {active_key}",
             "Content-Type": "application/json"
         }
         try:
@@ -121,5 +124,5 @@ def check_video_status(task_id: str) -> Dict[str, Any]:
         "task_id": task_id,
         "status": "ready",
         "video_url": "",
-        "message": "Blueprint compiled. Add SILICONFLOW_API_KEY to generate live AI video."
+        "message": "Blueprint compiled. Add your SiliconFlow API Key via BYOK settings to generate live AI video."
     }

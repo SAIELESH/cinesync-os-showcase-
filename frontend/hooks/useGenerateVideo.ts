@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { parseScript, generateShots, generateVideo, checkVideoStatus } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 const loadingSteps = [
   "Parsing concept into scenes...",
@@ -9,6 +10,7 @@ const loadingSteps = [
 ];
 
 export function useGenerateVideo() {
+  const { deductCredits } = useAuth();
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [progress, setProgress] = useState(0);
   const [activeStep, setActiveStep] = useState(loadingSteps[0]);
@@ -22,6 +24,8 @@ export function useGenerateVideo() {
       setError("Please provide a scene concept");
       return;
     }
+
+    deductCredits(15);
 
     setState("loading");
     setProgress(15);

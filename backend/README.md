@@ -1,29 +1,18 @@
-# CineSync OS Backend Showcase
+# CineSync OS Production Backend
 
-Portfolio-safe FastAPI backend for the CineSync OS M1 prototype.
+FastAPI service powering the CineSync AI Filmmaking and Director Operating System.
 
-## What this demonstrates
+## Core Capabilities
 
-- Script-to-scene parsing API
-- Scene-to-shot generation API
-- Camera-aware prompt builder
-- Video generation job interface
-- Status polling interface
-- Clean FastAPI service structure
+- **Claude 3.5 Sonnet Script Ingestion:** Parses raw scripts into scene breakdowns and mood vectors.
+- **Cinematography Planner:** Context-aware shot list generation (lenses, framing, movements, lighting).
+- **Camera-Aware Prompt Builder:** Builds strict character identity and optical consistency conditioning prompts.
+- **Dual Video Generation Engine:**
+  - **Live Mode:** Renders high-definition AI video via Wan2.2 (Wan-AI) diffusion models using BYOK (Bring Your Own Key).
+  - **Blueprint Mode:** Compiles prompt blueprints and camera vectors for zero-cost operation.
+- **Reference Conditioning:** Ingests character and scene reference images for multi-shot consistency.
 
-## Why this is public-safe
-
-This repo intentionally excludes:
-
-- Real API keys
-- Full production orchestration logic
-- Advanced consistency-engine logic
-- Proprietary prompt templates
-- Paid video provider implementation details
-
-The public version runs in `mock` mode so recruiters and collaborators can test the API without paid credentials.
-
-## Run locally
+## Run Locally
 
 ```bash
 cd backend
@@ -33,26 +22,13 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 5000
 ```
 
-Open:
+Interactive API documentation is available at `http://localhost:5000/docs`.
 
-```text
-http://localhost:5000/docs
-```
+## API Endpoints
 
-## API Flow
-
-```text
-POST /parse-script
-POST /generate-shots
-POST /build-prompt
-POST /generate-video
-GET  /video-status/{task_id}
-```
-
-## Example request
-
-```bash
-curl -X POST http://localhost:5000/parse-script \
-  -H "Content-Type: application/json" \
-  -d '{"script":"A lonely filmmaker walks through a neon-lit Chennai street at night."}'
-```
+- `POST /parse-script` — Ingests screenplay text and returns structured scene units.
+- `POST /generate-shots` — Generates cinematic coverage shots for a selected scene.
+- `POST /build-prompt` — Compiles prompt with lens, camera movement, and consistency rules.
+- `POST /generate-video` — Dispatches video rendering job (Wan2.2 or Blueprint).
+- `GET  /video-status/{task_id}` — Polls job status and returns final MP4 video URL.
+- `POST /upload-image` — Uploads reference image for identity conditioning.

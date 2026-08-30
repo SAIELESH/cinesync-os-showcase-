@@ -6,10 +6,12 @@ import { ShotConfiguration } from "@/components/workflow/ShotConfiguration";
 import { Card } from "@/components/global/ui/Card";
 import { checkVideoStatus } from "@/lib/api";
 import type { Scene, Shot } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 type VideoStatus = "idle" | "processing" | "ready" | "error";
 
 export default function WorkflowPage() {
+  const { deductCredits } = useAuth();
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [currentScene, setCurrentScene] = useState<Scene | null>(null);
   const [currentShots, setCurrentShots] = useState<Shot[]>([]);
@@ -36,6 +38,7 @@ export default function WorkflowPage() {
   const handleVideoGenerated = async (generatedTaskId: string) => {
     setTaskId(generatedTaskId);
     setVideoStatus("processing");
+    deductCredits(25);
 
     // Poll for video status
     const pollStatus = async () => {

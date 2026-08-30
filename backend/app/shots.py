@@ -22,12 +22,13 @@ def _clean_json(text: str) -> str:
     return match.group(0) if match else text
 
 
-def generate_shots(scene: Dict) -> List[Dict[str, Any]]:
+def generate_shots(scene: Dict, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
     """Create a context-aware cinematography shot list for a scene."""
-    if ANTHROPIC_KEY:
+    active_key = api_key or ANTHROPIC_KEY
+    if active_key:
         try:
             import anthropic
-            client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+            client = anthropic.Anthropic(api_key=active_key)
             prompt = f"""You are a master cinematographer.
 Generate 3 to 4 varied cinematic shots for this scene.
 Return a valid JSON array only.

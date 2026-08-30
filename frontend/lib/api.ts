@@ -63,6 +63,29 @@ export interface UploadImageResponse {
   message: string;
 }
 
+function getClientHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("cinesync_user");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.siliconFlowKey) {
+          headers["x-siliconflow-key"] = parsed.siliconFlowKey.trim();
+        }
+        if (parsed.anthropicKey) {
+          headers["x-anthropic-key"] = parsed.anthropicKey.trim();
+        }
+      }
+    } catch {
+      // Ignore
+    }
+  }
+  return headers;
+}
+
 // ==========================
 // API CALLS
 // ==========================
@@ -70,9 +93,7 @@ export interface UploadImageResponse {
 export async function parseScript(script: string): Promise<ParseScriptResponse> {
   const response = await fetch(`${API_BASE_URL}/parse-script`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getClientHeaders(),
     body: JSON.stringify({ script }),
   });
 
@@ -87,9 +108,7 @@ export async function parseScript(script: string): Promise<ParseScriptResponse> 
 export async function generateShots(scene: Scene): Promise<GenerateShotsResponse> {
   const response = await fetch(`${API_BASE_URL}/generate-shots`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getClientHeaders(),
     body: JSON.stringify({ scene }),
   });
 
@@ -104,9 +123,7 @@ export async function generateShots(scene: Scene): Promise<GenerateShotsResponse
 export async function generateVideo(request: VideoRequest): Promise<VideoResponse> {
   const response = await fetch(`${API_BASE_URL}/generate-video`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getClientHeaders(),
     body: JSON.stringify(request),
   });
 
@@ -119,7 +136,9 @@ export async function generateVideo(request: VideoRequest): Promise<VideoRespons
 }
 
 export async function checkVideoStatus(taskId: string): Promise<VideoStatusResponse> {
-  const response = await fetch(`${API_BASE_URL}/video-status/${taskId}`);
+  const response = await fetch(`${API_BASE_URL}/video-status/${taskId}`, {
+    headers: getClientHeaders(),
+  });
 
   if (!response.ok) {
     const error = await response.text();

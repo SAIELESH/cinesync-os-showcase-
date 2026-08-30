@@ -1,221 +1,128 @@
-# CineSync OS — AI Filmmaking Workflow Prototype
+# CineSync OS — AI Filmmaking & Director Operating System
 
-CineSync OS is an AI-assisted filmmaking workflow prototype that converts a script into structured scenes, shot suggestions, camera controls, and AI video generation prompts.
-
-This project was built as an M1 proof-of-concept to demonstrate how storytelling can be transformed into a more structured production workflow instead of relying only on raw prompt-based generation.
+CineSync OS is an AI-assisted filmmaking operating system that converts raw screenplays into structured scenes, multi-shot coverage, optical camera controls, and high-definition AI video outputs.
 
 ---
 
-## Overview
+## 🎬 Overview
 
-Most AI video tools depend heavily on manual prompting. CineSync OS explores a more systematic workflow:
+Most AI video generators treat creators like prompt engineers. CineSync OS provides a systematic, multi-shot creative workflow:
 
 ```text
-Script → Scenes → Shots → Camera Controls → Generation Prompt → AI Video Output
+Screenplay → Scene Decomposition → Shot Planning → Optical Physics → Consistency Locks → AI Video Generation
 ```
-The goal is to help creators think like directors, not just prompt writers.
 
-## Key Features
+The goal is to empower creators and production teams to think like directors, not prompt writers.
 
-Script-to-scene workflow
-Scene-to-shot breakdown
-Editable shot suggestions
-Camera control inputs
-Lens
-Framing
-Movement
-Prompt-building layer for AI video generation
-Three-column production-style UI
-Prototype deployment-ready frontend
-Backend-ready architecture for model/API integration
+---
 
-## Product Vision
+## ✨ Core Features
 
-CineSync OS is designed as a foundation for an AI-native director operating system.
+- **Claude 3.5 Sonnet Screenplay Parser:** Automatically breaks down scripts into scene units, environment definitions, and character identity directives.
+- **Context-Aware Cinematography Planner:** Recommends focal lengths (24mm, 35mm, 50mm, 85mm, 100mm), camera physics (Dolly, Pan, Tilt, Tracking, Handheld), and framing rules.
+- **Character & Lighting Consistency Locks:** Enforces strict wardrobe, facial fidelity, and lighting continuity across multi-shot takes.
+- **Dual Video Generation Engine:**
+  - **Live AI Diffusion Mode:** Generates real high-definition MP4 videos using **Wan2.2 (Wan-AI)** video models via SiliconFlow BYOK.
+  - **Zero-Config Blueprint Mode:** Synthesizes cinematic prompt blueprints and camera vectors instantly without requiring API keys.
+- **Director Studio Console:** A pro 3-column workspace featuring live sequence stacks, optical controls, reactive consistency monitors, and selective shot regeneration.
+- **Client-Side BYOK Key Configuration:** Enter and manage your own API keys directly within the browser interface with zero backend configuration needed.
 
-The long-term vision includes:
+---
 
-• Character consistency
-• Style consistency
-• Shot continuity
-• Multi-shot planning
-• Director-controlled generation
-• Model-agnostic video API integration
+## 📸 Interface Showcase
 
-## Screenshots
-
-### Full Workflow
-
+### Full Filmmaking Workflow
 ![Full Workflow](docs/screenshots/Full_workflow.png)
 
 ---
 
 ### Script & Scene Breakdown
-
 ![Script Breakdown](docs/screenshots/script_breakdown.png)
 
 ---
 
-### Shot Engineering
-
+### Shot Engineering & Cinematography
 ![Shot Engineering](docs/screenshots/shot_engineering.png)
 
 ---
 
 ### Lens & Camera Controls
-
 ![Lens Controls](docs/screenshots/lens_controls.png)
 
 ---
 
 ### Framing Controls
-
 ![Framing Controls](docs/screenshots/Framing_Controls.png)
 
 ---
 
-### Scene Cards
-
+### Scene Cards & Sequence Stack
 ![Scene Cards](docs/screenshots/scene_cards.png)
 
 ---
 
-### Generation Panel
-
+### Generation Panel & Live Video Player
 ![Generation Panel](docs/screenshots/generation_panel.png)
 
-## Production workflow automation
+---
 
-### Tech Stack
+## 🛠️ Tech Stack
 
 #### Frontend
-• **Next.js 15** (Pages Router)
-• **React 19**
-• **TypeScript 5.7**
-• **Tailwind CSS & PostCSS**
-• **Framer Motion & Lucide React**
+- **Framework:** Next.js 15 (Pages Router) + React 19 + TypeScript
+- **Styling:** Tailwind CSS + PostCSS + Obsidian Dark Theme
+- **Motion & UI:** Framer Motion + Lucide React + Glassmorphism
 
 #### Backend
-• **Python 3.11+**
-• **FastAPI & Uvicorn**
-• **Pydantic**
+- **Framework:** Python 3.11+ + FastAPI + Uvicorn + Pydantic
+- **Security & Headers:** Support for dynamic client BYOK API key headers (`X-SiliconFlow-Key`, `X-Anthropic-Key`)
 
-#### AI / Generation Layer
-• **Claude 3.5 Sonnet** (Script Parsing, Scene Decomposition & Shot Engineering)
-• **Wan-AI (Wan2.2) Diffusion Model** (Text-to-Video & Image-to-Video Generation)
-• **Structured Prompt Synthesis Engine** (Character Locks, Camera Vectors, Lighting)
+#### AI & Video Models
+- **Script Intelligence:** Claude 3.5 Sonnet (Anthropic)
+- **Video Diffusion:** Wan2.2 Text-to-Video & Image-to-Video (Wan-AI via SiliconFlow)
+- **Prompt Synthesis:** Structured cinematic prompt compiler
 
-## Repository Scope
+---
 
-This public repository is a showcase version of the CineSync M1 prototype.
+## 🚀 Running Locally & BYOK (Bring Your Own Key)
 
-It includes selected frontend, workflow, and documentation files to demonstrate:
+CineSync OS runs out-of-the-box in **Blueprint Mode** with zero configuration required.
 
-• System design
-• Product thinking
-• AI workflow architecture
-• UI implementation
-• End-to-end prototype direction
+### 1. Launch the Backend
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 5000
+```
 
-## Running Locally & API Keys (Bring Your Own Key)
+### 2. Launch the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-CineSync OS runs out-of-the-box in **Blueprint / Showcase Mode** with zero configuration.
+Open `http://localhost:3000` in your browser.
 
-To enable **Live AI Script Parsing and Video Rendering**, add your API keys:
+### 3. Add Your BYOK Keys (Directly in UI)
+Click **"Add BYOK Key"** or the key icon in the navigation bar to enter your keys:
+- **SiliconFlow API Key:** For live Wan2.2 video generation.
+- **Anthropic API Key:** For Claude 3.5 Sonnet script breakdown.
 
-1. **Backend Setup:**
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   cp env.example .env
-   ```
-2. **Add Your Keys to `backend/.env`:**
-   ```env
-   # SiliconFlow API Key for Wan2.2 Text-to-Video generation:
-   SILICONFLOW_API_KEY=your_key_here
+Keys are stored locally in your browser and transmitted securely over custom headers.
 
-   # Anthropic API Key for Claude 3.5 Sonnet script analysis:
-   ANTHROPIC_API_KEY=your_key_here
-   ```
-3. **Start the Backend:**
-   ```bash
-   python app/main.py
-   ```
-4. **Start the Next.js Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+---
 
-## Suggested Workflow
+## 👤 Author
 
-1. Upload or paste a script
-2. Generate structured scenes
-3. Generate shot suggestions
-4. Select camera style and movement
-5. Build generation prompt
-6. Generate or preview AI video output
+**Sailesh Krishnan**  
+AI Engineer | GenAI & Filmmaking Systems  
+GitHub: [SAIELESH](https://github.com/SAIELESH)
 
-## Project Status
+---
 
-M1 proof-of-concept completed.
+## 📄 License
 
-Current focus:
-
-• Cleaning public showcase repository
-• Improving GitHub documentation
-• Preparing for M2 architecture
-• Exploring consistency and control layers
-
-## Screenshots / Demo
-
-docs/screenshots/
-
-## Roadmap
-
-### M1 — Proof of Concept
-• Script to scene parsing
-• Scene to shot suggestions
-• Basic camera controls
-• AI video generation flow
-• Simple UI prototype
-
-### M2 — Consistency & Control
-• Structured prompt builder
-• Character consistency layer
-• Global style binder
-• Better camera control mapping
-• Improved generation quality
-
-### Future
-• Multi-shot continuity
-• Reference-based generation
-• Storyboard mode
-• Timeline-based interface
-• Production-ready director console
-
-## Why This Project Matters
-
-AI filmmaking is moving from simple prompt generation toward structured creative systems.
-
-CineSync OS explores how creators can control:
-
-• Narrative structure
-• Shot planning
-• Camera intent
-• Visual consistency
-• Production workflow
-
-This project demonstrates the early foundation of that direction.
-
-## Author
-
-## Sailesh Krishnan
-AI Engineer | GenAI & Workflow Automation
-
-## License
-
-All Rights Reserved.
-
-This repository is shared for portfolio and demonstration purposes only. Commercial use, redistribution, copying, or reuse of the code, architecture, workflow logic, or documentation is not permitted without written permission.
+All Rights Reserved. Shared for portfolio and demonstration purposes.

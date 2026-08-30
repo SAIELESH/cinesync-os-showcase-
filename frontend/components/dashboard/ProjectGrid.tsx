@@ -1,10 +1,21 @@
+import { useState } from "react";
 import Link from "next/link";
-import { Play, Sparkles } from "lucide-react";
+import { Play, Sparkles, Check, Share2 } from "lucide-react";
 import { Button, buttonStyles } from "@/components/global/ui/Button";
 import { Card } from "@/components/global/ui/Card";
 import { projects } from "@/lib/data";
 
 export function ProjectGrid() {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleShare = (projectId: string) => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(`${window.location.origin}/app?project=${projectId}`);
+      setCopiedId(projectId);
+      setTimeout(() => setCopiedId(null), 2500);
+    }
+  };
+
   return (
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       {projects.map((project) => (
@@ -26,11 +37,27 @@ export function ProjectGrid() {
             <div className="mt-2 text-sm text-slate-400">{project.updatedAt}</div>
           </div>
           <div className="mt-5 flex gap-3">
-            <Link href="/app" className={buttonStyles({ className: "gap-2" })}>
+            <Link href={`/app?project=${project.id}`} className={buttonStyles({ className: "gap-2" })}>
               <Play className="size-4" />
               Open
             </Link>
-            <Button variant="secondary">Share</Button>
+            <Button
+              variant="secondary"
+              className="gap-2"
+              onClick={() => handleShare(project.id)}
+            >
+              {copiedId === project.id ? (
+                <>
+                  <Check className="size-4 text-emerald" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="size-4" />
+                  Share
+                </>
+              )}
+            </Button>
           </div>
         </Card>
       ))}

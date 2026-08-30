@@ -30,7 +30,7 @@ export function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-sky-300"
+        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-accent"
       />
       {markers ? (
         <div className="flex justify-between text-xs uppercase tracking-[0.22em] text-slate-500">

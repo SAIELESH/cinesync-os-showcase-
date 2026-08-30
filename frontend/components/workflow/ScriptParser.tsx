@@ -59,7 +59,7 @@ export function ScriptParser({ onScenesParsed }: ScriptParserProps) {
           onChange={(e) => setScript(e.target.value)}
           rows={10}
           placeholder="INT. COFFEE SHOP - DAY&#10;&#10;A bustling coffee shop on a rainy afternoon. SARAH (28), a freelance writer, sits by the window with her laptop..."
-          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-accent/35 font-mono text-sm"
+          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-mono text-white outline-none transition placeholder:text-slate-500 focus:border-accent/35"
         />
       </label>
 

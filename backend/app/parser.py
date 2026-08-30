@@ -1,44 +1,100 @@
 """Script-to-scene parser.
 
-Public-safe implementation:
-- Uses a local deterministic parser by default.
-- Optionally supports LLM-backed parsing via environment variables.
-- Does not expose private prompts or production orchestration logic.
+Supports:
+1. Live dynamic parsing via Claude 3.5 Sonnet when ANTHROPIC_API_KEY is configured.
+2. Robust local screenplay parser that properly handles sluglines (INT/EXT) without splitting abbreviations.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Any
+import os
 import re
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 
-def _split_script(script: str) -> List[str]:
-    chunks = re.split(r"\n\s*\n|(?<=\.)\s+(?=[A-Z])", script.strip())
-    return [chunk.strip() for chunk in chunks if chunk.strip()][:6]
+def _clean_json(text: str) -> str:
+    text = re.sub(r"```json|```", "", text).strip()
+    match = re.search(r"\[.*\]", text, re.DOTALL)
+    return match.group(0) if match else text
 
 
-def parse_script_to_scenes(script: str) -> List[Dict[str, str]]:
-    """Convert raw script text into simplified scene objects.
+def _split_screenplay_scenes(script: str) -> List[str]:
+    # Match standard screenplay scene headings like INT., EXT., INT/EXT., SCENE
+    pattern = r"(?=(?:^|\n)(?:INT\.|EXT\.|INT/EXT\.|SCENE\s*\d*))"
+    chunks = re.split(pattern, script.strip(), flags=re.IGNORECASE)
+    cleaned = [c.strip() for c in chunks if c.strip()]
+    if not cleaned:
+        # Fallback to paragraph splitting
+        cleaned = [p.strip() for p in re.split(r"\n\s*\n", script.strip()) if p.strip()]
+    return cleaned[:6]
 
-    This deterministic version keeps the public repo easy to run without API keys.
-    Replace with an LLM provider in private/production builds.
-    """
-    chunks = _split_script(script)
 
+def parse_script_to_scenes(script: str) -> List[Dict[str, Any]]:
+    """Convert raw script text into structured cinematic scenes."""
+    if ANTHROPIC_KEY:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+            prompt = f"""Break the following script into 3–6 cinematic scene units.
+Return a valid JSON array only with no markdown formatting.
+Each object must contain:
+- title: concise scene title
+- environment: location, lighting, atmosphere
+- character: physical description and locked identity
+- mood: emotional tone
+- action: visual action occurring in the scene
+- description: full visual summary
+
+Script:
+{script}"""
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=1200,
+                temperature=0.4,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            raw = _clean_json(response.content[0].text)
+            parsed = json.loads(raw)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                return [
+                    {
+                        "id": f"s{i+1}",
+                        "number": str(i + 1).zfill(2),
+                        "title": s.get("title", f"Scene {i+1}"),
+                        "environment": s.get("environment", "Cinematic environment"),
+                        "character": s.get("character", "Main character"),
+                        "mood": s.get("mood", "Dramatic"),
+                        "action": s.get("action", ""),
+                        "description": s.get("description", s.get("action", ""))
+                    }
+                    for i, s in enumerate(parsed)
+                ]
+        except Exception as e:
+            print("Anthropic parse error, falling back to local engine:", e)
+
+    # Local deterministic parser
+    chunks = _split_screenplay_scenes(script)
     if not chunks:
         chunks = [script[:300] or "A character enters a cinematic environment."]
 
     scenes = []
     for idx, chunk in enumerate(chunks, start=1):
-        scenes.append(
-            {
-                "id": f"s{idx}",
-                "number": str(idx).zfill(2),
-                "title": f"Scene {idx}",
-                "environment": "cinematic location derived from script context",
-                "character": "main character from script",
-                "mood": "dramatic and cinematic",
-                "action": chunk[:240],
-                "description": chunk[:300],
-            }
-        )
+        # Extract potential slugline or first line as title
+        first_line = chunk.split("\n")[0].strip()
+        title = first_line[:40] if len(first_line) > 3 else f"Scene {idx}"
+        scenes.append({
+            "id": f"s{idx}",
+            "number": str(idx).zfill(2),
+            "title": title,
+            "environment": "Cinematic location derived from script",
+            "character": "Main character in consistent wardrobe",
+            "mood": "Cinematic and dramatic",
+            "action": chunk[:250],
+            "description": chunk[:350],
+        })
 
     return scenes

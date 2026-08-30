@@ -35,7 +35,7 @@ export function Modal({ open, title, description, onClose, children }: ModalProp
                   <h2 className="font-[var(--font-sora)] text-2xl font-semibold text-white">{title}</h2>
                   {description ? <p className="mt-2 max-w-xl text-sm text-slate-300">{description}</p> : null}
                 </div>
-                <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close improve panel">
+                <Button variant="ghost" size="sm" onClick={onClose} aria-label={`Close ${title}`}>
                   <X className="size-4" />
                 </Button>
               </div>

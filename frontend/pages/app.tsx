@@ -209,17 +209,19 @@ export default function DirectorModePage() {
   const pollVideoStatus = async (taskId: string) => {
     try {
       const status = await checkVideoStatus(taskId);
-      
-      if (status.status === "ready" && status.video_url) {
+
+      if (status.status === "ready") {
         setVideoStatus("ready");
-        setVideoUrl(status.video_url);
+        if (status.video_url) {
+          setVideoUrl(status.video_url);
+        }
         setIsGeneratingVideo(false);
       } else if (status.status === "failed" || status.status === "error") {
         setVideoStatus("error");
         setApiError(status.error || "Video generation failed");
         setIsGeneratingVideo(false);
       } else if (status.status === "processing") {
-        setTimeout(() => pollVideoStatus(taskId), 3000);
+        setTimeout(() => pollVideoStatus(taskId), 2500);
       }
     } catch (err) {
       setVideoStatus("error");
@@ -278,9 +280,14 @@ export default function DirectorModePage() {
                   <div className="text-sm uppercase tracking-[0.28em] text-slate-400">Scenes</div>
                   <div className="mt-1 font-[var(--font-sora)] text-xl text-white">Sequence Stack</div>
                 </div>
-                <Button variant="secondary" size="sm" className="gap-2">
-                  <CirclePlus className="size-4" />
-                  Add Scene
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setScriptPanelOpen(true)}
+                >
+                  <FileText className="size-4" />
+                  Parse Script
                 </Button>
               </div>
               <div className="space-y-3">
@@ -599,13 +606,38 @@ export default function DirectorModePage() {
               </div>
 
               <div className="mt-6 flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" className="gap-2">
-                  <Film className="size-4" />
-                  Generate Full Scene
+                <Button
+                  size="lg"
+                  className="gap-2"
+                  onClick={handleGenerateVideoWithBackend}
+                  disabled={isGeneratingVideo}
+                >
+                  {isGeneratingVideo ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Generating AI Video...
+                    </>
+                  ) : (
+                    <>
+                      <Film className="size-4" />
+                      Generate AI Shot
+                    </>
+                  )}
                 </Button>
-                <Button variant="secondary" size="lg" className="gap-2">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="gap-2"
+                  onClick={() => {
+                    if (videoUrl) {
+                      window.open(videoUrl, "_blank");
+                    } else {
+                      alert("Shot blueprint compiled and validated. Connect SILICONFLOW_API_KEY to download live rendered MP4.");
+                    }
+                  }}
+                >
                   <Download className="size-4" />
-                  Download
+                  Download Shot
                 </Button>
               </div>
             </Card>
@@ -741,9 +773,9 @@ export default function DirectorModePage() {
       {/* Video Generation Status Modal */}
       <Modal
         open={videoStatus === "processing" || videoStatus === "ready"}
-        onClose={() => {}}
-        title={videoStatus === "ready" ? "Video Ready!" : "Generating Video"}
-        description={videoStatus === "ready" ? "Your video has been generated successfully." : "Please wait while your video is being generated."}
+        onClose={() => setVideoStatus("idle")}
+        title={videoStatus === "ready" ? (videoUrl ? "Live AI Video Ready!" : "Cinematic Blueprint Compiled!") : "Generating Video"}
+        description={videoStatus === "ready" ? (videoUrl ? "Your video has been generated successfully." : "Your shot parameters and prompt directives have been compiled.") : "Please wait while your video is being generated."}
       >
         <div className="space-y-4">
           {videoStatus === "processing" && (
@@ -753,16 +785,41 @@ export default function DirectorModePage() {
             </div>
           )}
 
-          {videoStatus === "ready" && videoUrl && (
+          {videoStatus === "ready" && (
             <div className="space-y-4">
-              <video src={videoUrl} controls className="w-full rounded-2xl" />
-              <a
-                href={videoUrl}
-                download
-                className="block text-center text-sm text-accent hover:underline"
+              {videoUrl ? (
+                <>
+                  <video src={videoUrl} controls autoPlay className="w-full rounded-2xl" />
+                  <a
+                    href={videoUrl}
+                    download
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-center text-sm font-medium text-accent hover:underline"
+                  >
+                    Download Video MP4
+                  </a>
+                </>
+              ) : (
+                <div className="rounded-2xl border border-accent/30 bg-accent/10 p-4 space-y-2">
+                  <div className="text-sm font-semibold text-white">
+                    🔑 Cinematic Blueprint Ready for Rendering
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Camera: <strong>{movement}</strong> motion with <strong>{lens}</strong> lens and <strong>{framing}</strong> framing.
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    To render actual AI video with Wan-AI (Wan2.2), provide <code>SILICONFLOW_API_KEY</code> in <code>.env</code>.
+                  </p>
+                </div>
+              )}
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setVideoStatus("idle")}
               >
-                Download Video
-              </a>
+                Close
+              </Button>
             </div>
           )}
         </div>

@@ -82,8 +82,8 @@ export default function WorkflowPage() {
           <div className="mb-8 flex items-center justify-between">
             {[
               { step: 1, label: "Parse Script", done: scenes.length > 0 },
-              { step: 2, label: "Edit Scenes", done: currentScene !== null },
-              { step: 3, label: "Configure Shots", done: currentShots.length > 0 },
+              { step: 2, label: "Edit Scenes", done: scenes.length > 0 && currentShots.length > 0 },
+              { step: 3, label: "Configure Shots", done: taskId !== "" || videoStatus !== "idle" },
               { step: 4, label: "Generate Video", done: videoStatus === "ready" },
             ].map((item, index) => (
               <div
@@ -93,7 +93,7 @@ export default function WorkflowPage() {
                 <div
                   className={`flex size-10 items-center justify-center rounded-full text-sm font-medium transition ${
                     item.done
-                      ? "bg-accent text-white"
+                      ? "bg-accent text-white shadow-glow"
                       : "bg-white/10 text-slate-400"
                   }`}
                 >

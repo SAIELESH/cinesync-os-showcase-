@@ -68,10 +68,9 @@ def submit_video_job(
                     "is_live": True
                 }
             else:
-                raise Exception(f"Video API Error ({response.status_code}): {response.text}")
+                print(f"Video API Error ({response.status_code}): {response.text}")
         except Exception as e:
             print("Video generation submit error:", e)
-            raise e
 
     # Blueprint Mode (no API key configured)
     task_id = f"demo_{uuid4().hex[:8]}"

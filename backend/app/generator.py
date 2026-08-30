@@ -35,6 +35,6 @@ def check_video_status(task_id: str) -> Dict[str, str]:
     return {
         "task_id": task_id,
         "status": "ready" if task_id.startswith("mock_") else "unknown",
-        "video_url": "https://example.com/demo-video.mp4" if task_id.startswith("mock_") else "",
+        "video_url": "/demo-video.mp4" if task_id.startswith("mock_") else "",
         "message": "Mock status response for public showcase.",
     }

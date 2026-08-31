@@ -665,13 +665,14 @@ export default function DirectorModePage() {
                   ))}
                 </div>
 
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Button variant="secondary" className="gap-2" onClick={handleRegenerate}>
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <Button variant="secondary" size="sm" className="w-full justify-center gap-1.5" onClick={handleRegenerate}>
                     <WandSparkles className="size-4" />
                     Fix Consistency
                   </Button>
                   <Button
-                    className="gap-2"
+                    size="sm"
+                    className="w-full justify-center gap-1.5"
                     onClick={() => {
                       if (videoUrl) {
                         window.open(videoUrl, "_blank");

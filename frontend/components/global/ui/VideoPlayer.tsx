@@ -28,19 +28,11 @@ export function VideoPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
 
-  const aspectClass =
-    aspect === "anamorphic"
-      ? "aspect-[2.39/1] min-h-[220px]"
-      : aspect === "wide"
-      ? "aspect-[16/9] min-h-[260px]"
-      : "aspect-[16/10] min-h-[290px]";
-
   const body = (
     <Card
       glow
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden border border-white/10 bg-[#070A0F] p-4 sm:p-5 shadow-modal-elevation",
-        aspectClass
+        "group relative flex flex-col justify-between overflow-hidden border border-white/10 bg-[#070A0F] p-4 sm:p-5 shadow-modal-elevation min-h-[310px] w-full"
       )}
     >
       {src ? (
@@ -63,8 +55,8 @@ export function VideoPlayer({
       ) : (
         <>
           {/* Cinematic Viewport Ambient Lighting */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 opacity-80" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(56,189,248,0.12),transparent_70%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 opacity-80 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(56,189,248,0.14),transparent_70%)] pointer-events-none" />
 
           {/* Rule of Thirds Sensor Grid Overlay */}
           {showGrid && (
@@ -82,21 +74,21 @@ export function VideoPlayer({
           )}
 
           {/* Top HUD: Status Bar */}
-          <div className="relative z-20 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-full border border-rose/30 bg-rose/10 px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-rose">
+          <div className="relative z-20 flex flex-wrap items-center justify-between gap-2 pb-2">
+            <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+              <div className="flex items-center gap-1.5 rounded-full border border-rose/30 bg-rose/10 px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-rose shrink-0">
                 <span className="size-1.5 rounded-full bg-rose animate-pulse" />
                 REC 4K
               </div>
-              <span className="rounded-full border border-white/10 bg-black/60 px-2.5 py-0.5 text-[10px] font-mono text-slate-300 backdrop-blur">
+              <span className="rounded-full border border-white/10 bg-black/60 px-2.5 py-0.5 text-[10px] font-mono text-slate-300 backdrop-blur whitespace-nowrap">
                 {focalLength}
               </span>
-              <span className="hidden sm:inline-block rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-mono text-slate-400 backdrop-blur">
+              <span className="rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[10px] font-mono text-slate-400 backdrop-blur whitespace-nowrap">
                 {fps} FPS
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowGrid(!showGrid)}
@@ -114,11 +106,11 @@ export function VideoPlayer({
           </div>
 
           {/* Center Play Button Simulator */}
-          <div className="relative z-20 my-auto flex items-center justify-center py-2">
+          <div className="relative z-20 my-auto flex items-center justify-center py-4">
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="group/btn flex size-14 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-glow backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-accent hover:bg-accent hover:text-background"
+              className="group/btn flex size-14 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white shadow-glow backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-accent hover:bg-accent hover:text-background"
               aria-label={isPlaying ? "Pause Preview" : "Play Preview"}
             >
               {isPlaying ? (
@@ -130,15 +122,15 @@ export function VideoPlayer({
           </div>
 
           {/* Bottom HUD: Scene Metadata & Locks */}
-          <div className="relative z-20 space-y-2">
+          <div className="relative z-20 space-y-2.5 pt-2">
             <div>
               <div className="flex items-center gap-2">
-                <Camera className="size-3.5 text-accent" />
-                <h3 className="font-sora text-base sm:text-lg font-semibold text-white leading-snug">
+                <Camera className="size-3.5 text-accent shrink-0" />
+                <h3 className="font-sora text-base sm:text-lg font-semibold text-white leading-snug break-words">
                   {title}
                 </h3>
               </div>
-              <p className="mt-1 text-xs text-slate-300 leading-relaxed">
+              <p className="mt-1 text-xs text-slate-300 leading-relaxed break-words">
                 {subtitle}
               </p>
             </div>
@@ -148,7 +140,7 @@ export function VideoPlayer({
                 {["Character Lock", "Lighting Coherent", "Anamorphic 2.39"].map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-slate-300 backdrop-blur"
+                    className="rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-slate-300 backdrop-blur whitespace-nowrap"
                   >
                     {item}
                   </span>

@@ -27,9 +27,13 @@ export function ScriptParser({ onScenesParsed }: ScriptParserProps) {
 
     try {
       const result = await parseScript(script);
-      onScenesParsed(result.scenes);
+      if (result.scenes && result.scenes.length > 0) {
+        onScenesParsed(result.scenes);
+      } else {
+        setError("Please enter a scene description or screenplay dialogue to extract shots.");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse script");
+      setError(err instanceof Error ? err.message : "Unable to decompose screenplay into scenes. Please try again.");
     } finally {
       setIsLoading(false);
     }

@@ -26,7 +26,8 @@ import {
   Key,
   Coins,
   Layers,
-  Sparkle
+  Sparkle,
+  Zap
 } from "lucide-react";
 import { ImprovePanelContent } from "@/components/director/ImprovePanelContent";
 import { StatusPill } from "@/components/director/StatusPill";
@@ -252,18 +253,9 @@ const initialExtendedScenes: ExtendedScene[] = [
   }
 ];
 
-type GenerationLifecycleState =
-  | "idle"
-  | "preparing"
-  | "validating_resources"
-  | "rendering"
-  | "reviewing_continuity"
-  | "completed"
-  | "failed";
-
 export default function DirectorModePage() {
   const router = useRouter();
-  const { user, deductCredits } = useAuth();
+  const { user } = useAuth();
 
   // Core Project & Scene State
   const [currentScenes, setCurrentScenes] = useState<ExtendedScene[]>(initialExtendedScenes);
@@ -282,12 +274,9 @@ export default function DirectorModePage() {
   const [historyStack, setHistoryStack] = useState<ExtendedScene[][]>([]);
   const [redoStack, setRedoStack] = useState<ExtendedScene[][]>([]);
 
-  // Generation Lifecycle Machine
-  const [lifecycleState, setLifecycleState] = useState<GenerationLifecycleState>("idle");
-  const [lifecycleProgress, setLifecycleProgress] = useState(0);
-  const [lifecycleMessage, setLifecycleMessage] = useState("");
-  const [activeTaskId, setActiveTaskId] = useState<string>("");
-  const [failureReason, setFailureReason] = useState<string | null>(null);
+  // Real BYOK Generation State
+  const [isRenderingByok, setIsRenderingByok] = useState(false);
+  const [byokRequiredModalOpen, setByokRequiredModalOpen] = useState(false);
 
   // Modals & Panels
   const [scriptPanelOpen, setScriptPanelOpen] = useState(false);
@@ -297,7 +286,6 @@ export default function DirectorModePage() {
   const [improveOpen, setImproveOpen] = useState(false);
   const [improveSelection, setImproveSelection] = useState(improveOptions[0]);
   const [improveIntensity, setImproveIntensity] = useState(62);
-  const [regenerateFocus, setRegenerateFocus] = useState(regenerateOptions[0]);
 
   // Reference Image
   const [useReferenceImage, setUseReferenceImage] = useState(false);
@@ -305,13 +293,11 @@ export default function DirectorModePage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const isMountedRef = useRef(true);
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
-      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
     };
   }, []);
 
@@ -330,7 +316,13 @@ export default function DirectorModePage() {
     setToastMessage(msg);
     setTimeout(() => {
       if (isMountedRef.current) setToastMessage(null);
-    }, 4500);
+    }, 4000);
+  };
+
+  const openByokModal = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-byok-modal"));
+    }
   };
 
   const selectedScene = useMemo(
@@ -409,7 +401,7 @@ export default function DirectorModePage() {
     setSelectedShotId(shotId);
   };
 
-  // Update active shot properties canonically (retaining per-shot draft state)
+  // Update active shot properties canonically
   const updateActiveShot = (updater: (prev: ExtendedShot) => ExtendedShot, diffDesc?: string) => {
     recordHistory();
     setCurrentScenes((prevScenes) =>
@@ -480,7 +472,81 @@ export default function DirectorModePage() {
     }
   };
 
-  // Generate Coverage Shot (Per-shot draft state preserved)
+  // Instant 0ms Directing Blueprint Compilation (Truthful, No Fake Timers)
+  const handleCompileBlueprint = () => {
+    recordHistory();
+    setCurrentScenes((prevScenes) =>
+      prevScenes.map((sc) => {
+        if (sc.id !== selectedScene.id) return sc;
+        return {
+          ...sc,
+          shots: sc.shots.map((sh) => {
+            if (sh.id !== selectedShot.id) return sh;
+            return {
+              ...sh,
+              isDraft: false,
+              pendingDiff: undefined
+            };
+          })
+        };
+      })
+    );
+    showNotification(`Directing Blueprint saved: ${selectedShot.lens}, ${selectedShot.movement}, ${selectedShot.framing}.`);
+  };
+
+  // Real BYOK Video Diffusion Trigger
+  const handleTriggerByokRender = async () => {
+    if (!user.siliconFlowKey) {
+      setByokRequiredModalOpen(true);
+      return;
+    }
+
+    setIsRenderingByok(true);
+    try {
+      const cameraPayload = {
+        movement: selectedShot.movement.toLowerCase(),
+        lens: selectedShot.lens.split(" ")[0],
+        framing: selectedShot.framing.toLowerCase()
+      };
+
+      const backendShot = {
+        id: selectedShot.id,
+        type: selectedShot.name,
+        camera_movement: selectedShot.movement.toLowerCase(),
+        lens: cameraPayload.lens,
+        framing: cameraPayload.framing,
+        lighting: "cinematic high-contrast",
+        emotion: selectedShot.emotion > 70 ? "high dramatic intensity" : "measured"
+      };
+
+      await generateVideo({
+        scene: {
+          id: selectedScene.id,
+          number: "01",
+          title: selectedScene.title,
+          environment: selectedScene.description || "cinematic alleyway",
+          character: "Lead Detective",
+          mood: "noir dramatic",
+          action: selectedShot.description,
+          description: selectedScene.description,
+          duration: selectedScene.duration
+        },
+        shot: backendShot,
+        camera: cameraPayload,
+        image_path: useReferenceImage ? referenceImagePath : undefined,
+        use_reference: useReferenceImage
+      });
+
+      handleCompileBlueprint();
+      showNotification(`Video diffusion job dispatched to SiliconFlow Wan2.2.`);
+    } catch (err) {
+      showNotification(err instanceof Error ? err.message : "Failed to dispatch render job.");
+    } finally {
+      if (isMountedRef.current) setIsRenderingByok(false);
+    }
+  };
+
+  // Generate Coverage Shot
   const handleGenerateCoverageShot = () => {
     recordHistory();
     const newShotNum = selectedScene.shots.length + 1;
@@ -556,7 +622,7 @@ export default function DirectorModePage() {
         scriptPanelOpen ||
         improveOpen ||
         parsedScenes.length > 0 ||
-        lifecycleState !== "idle";
+        byokRequiredModalOpen;
 
       if (isInputActive || isModalActive) return;
 
@@ -581,114 +647,7 @@ export default function DirectorModePage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleRedo, handleUndo, improveOpen, lifecycleState, parsedScenes.length, scriptPanelOpen, selectedScene.shots]);
-
-  // Robust 5-Stage Generation Execution Machine
-  const executeGeneration = async () => {
-    if (!selectedScene || !selectedShot) return;
-
-    setLifecycleState("preparing");
-    setLifecycleProgress(10);
-    setLifecycleMessage("Validating shot parameters and prompt directives...");
-    setFailureReason(null);
-
-    // Stage 1: Resource Pre-flight validation
-    setTimeout(async () => {
-      if (!isMountedRef.current) return;
-      setLifecycleState("validating_resources");
-      setLifecycleProgress(30);
-
-      const hasBYOK = Boolean(user.siliconFlowKey);
-      const hasCredits = user.credits >= 20;
-
-      if (hasBYOK) {
-        setLifecycleMessage("Executing direct rendering via personal SiliconFlow Wan2.2 BYOK Key (0 platform credits required)...");
-      } else if (hasCredits) {
-        deductCredits(20);
-        setLifecycleMessage("Deducting 20 credits for platform-managed Wan2.2 diffusion compute...");
-      } else {
-        setLifecycleMessage("Compiling production-grade cinematography prompt blueprint (Zero-cost Blueprint Mode)...");
-      }
-
-      // Stage 2: Submit to backend API
-      try {
-        setLifecycleState("rendering");
-        setLifecycleProgress(60);
-
-        const cameraPayload = {
-          movement: selectedShot.movement.toLowerCase(),
-          lens: selectedShot.lens.split(" ")[0],
-          framing: selectedShot.framing.toLowerCase()
-        };
-
-        const backendShot = {
-          id: selectedShot.id,
-          type: selectedShot.name,
-          camera_movement: selectedShot.movement.toLowerCase(),
-          lens: cameraPayload.lens,
-          framing: cameraPayload.framing,
-          lighting: "cinematic high-contrast",
-          emotion: selectedShot.emotion > 70 ? "high dramatic intensity" : "measured"
-        };
-
-        const result = await generateVideo({
-          scene: {
-            id: selectedScene.id,
-            number: "01",
-            title: selectedScene.title,
-            environment: selectedScene.description || "cinematic alleyway",
-            character: "Lead Detective",
-            mood: "noir dramatic",
-            action: selectedShot.description,
-            description: selectedScene.description,
-            duration: selectedScene.duration
-          },
-          shot: backendShot,
-          camera: cameraPayload,
-          image_path: useReferenceImage ? referenceImagePath : undefined,
-          use_reference: useReferenceImage
-        });
-
-        if (!isMountedRef.current) return;
-        setActiveTaskId(result.task_id);
-
-        // Stage 3: Review continuity & finish
-        setLifecycleState("reviewing_continuity");
-        setLifecycleProgress(90);
-        setLifecycleMessage("Verifying multi-shot character identity against reference anchor...");
-
-        setTimeout(() => {
-          if (!isMountedRef.current) return;
-          // Clear draft state and increment shot version
-          setCurrentScenes((prevScenes) =>
-            prevScenes.map((sc) => {
-              if (sc.id !== selectedScene.id) return sc;
-              return {
-                ...sc,
-                shots: sc.shots.map((sh) => {
-                  if (sh.id !== selectedShot.id) return sh;
-                  return {
-                    ...sh,
-                    version: sh.version + 1,
-                    isDraft: false,
-                    pendingDiff: undefined
-                  };
-                })
-              };
-            })
-          );
-          setLifecycleState("completed");
-          setLifecycleProgress(100);
-          setLifecycleMessage("Shot successfully rendered and validated for sequence continuity.");
-          showNotification(`Shot "${selectedShot.name}" rendered successfully.`);
-        }, 1200);
-      } catch (err) {
-        if (!isMountedRef.current) return;
-        setLifecycleState("failed");
-        setFailureReason(err instanceof Error ? err.message : "Generation request timed out or was rejected by provider.");
-      }
-    }, 600);
-  };
+  }, [byokRequiredModalOpen, handleRedo, handleUndo, improveOpen, parsedScenes.length, scriptPanelOpen, selectedScene.shots]);
 
   const handleScriptDecomposition = async () => {
     if (!scriptInput.trim()) return;
@@ -1304,41 +1263,51 @@ export default function DirectorModePage() {
                     {user.siliconFlowKey ? (
                       <>
                         <Key className="size-3.5 text-emerald" />
-                        <span>Generation Method: BYOK Direct</span>
-                      </>
-                    ) : user.credits >= 20 ? (
-                      <>
-                        <Coins className="size-3.5 text-gold" />
-                        <span>Generation Method: 20 CineSync Credits</span>
+                        <span>Mode: BYOK Direct Diffusion (Wan2.2)</span>
                       </>
                     ) : (
                       <>
                         <Film className="size-3.5 text-cyan-400" />
-                        <span>Generation Method: Directing Blueprint Compilation</span>
+                        <span>Mode: Directing Blueprint (Instant · Free)</span>
                       </>
                     )}
                   </div>
                   <p className="text-[11px] text-slate-400 leading-snug">
                     {user.siliconFlowKey
-                      ? "SiliconFlow API Key active. Live video rendering will execute directly at zero platform credit cost."
-                      : user.credits >= 20
-                      ? "Using platform managed compute balance to process high-definition video generation."
-                      : "Zero credit cost. Compiles complete camera vectors and prompt blueprints. Configure a BYOK key in the top nav to render MP4 video."}
+                      ? "SiliconFlow API Key active. Full-motion video generation executes directly on Wan2.2 GPU compute."
+                      : "Zero credit cost. Direct camera vectors, focal lengths, and prompt blueprints in real time. Add a SiliconFlow key to trigger live GPU diffusion."}
                   </p>
                 </div>
 
-                {/* Primary Action Button */}
-                <div className="pt-1">
+                {/* Truth-Grounded Action Buttons: Instant Blueprint vs Real BYOK Diffusion */}
+                <div className="pt-1 space-y-2">
                   <Button
                     size="lg"
                     className="w-full justify-center gap-2 bg-accent text-background font-bold shadow-glow hover:bg-white transition"
-                    onClick={executeGeneration}
-                    disabled={lifecycleState !== "idle" && lifecycleState !== "completed" && lifecycleState !== "failed"}
+                    onClick={handleCompileBlueprint}
                   >
-                    <RefreshCw className="size-4" />
-                    {selectedShot.isDraft
-                      ? "Render with Changes"
-                      : "Render Shot Cut"}
+                    <Check className="size-4" />
+                    {selectedShot.isDraft ? "Save & Compile Blueprint" : "Compile Directing Blueprint"}
+                  </Button>
+
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="w-full justify-center gap-2 text-slate-300 hover:text-white border border-white/10"
+                    onClick={handleTriggerByokRender}
+                    disabled={isRenderingByok}
+                  >
+                    {isRenderingByok ? (
+                      <>
+                        <Loader2 className="size-3.5 animate-spin" />
+                        Dispatching to SiliconFlow Wan2.2...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="size-3.5 text-gold" />
+                        Render Video via Wan2.2 (BYOK)
+                      </>
+                    )}
                   </Button>
                 </div>
               </Card>
@@ -1386,102 +1355,71 @@ export default function DirectorModePage() {
         </div>
       </section>
 
-      {/* Transparent 5-Stage Render Progress Modal */}
+      {/* Honest BYOK Required Modal */}
       <Modal
-        open={lifecycleState !== "idle"}
-        onClose={() => setLifecycleState("idle")}
-        title={
-          lifecycleState === "completed"
-            ? "Shot Generation Complete"
-            : lifecycleState === "failed"
-            ? "Generation Failed"
-            : "Executing Shot Generation"
-        }
-        description="Multi-Shot Neural Video Diffusion Pipeline"
+        open={byokRequiredModalOpen}
+        onClose={() => setByokRequiredModalOpen(false)}
+        title="SiliconFlow BYOK API Key Required"
+        description="Wan2.2 Neural Video Diffusion Architecture"
       >
-        <div className="space-y-4">
-          {lifecycleState !== "completed" && lifecycleState !== "failed" && (
-            <div className="space-y-4 py-3">
-              <div className="flex items-center justify-between text-xs font-mono text-slate-300">
-                <span className="capitalize font-semibold text-white">Stage: {lifecycleState.replace("_", " ")}</span>
-                <span>{lifecycleProgress}%</span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full bg-accent transition-all duration-300"
-                  style={{ width: `${lifecycleProgress}%` }}
-                />
-              </div>
-              <div className="rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-slate-200 font-mono">
-                {lifecycleMessage}
-              </div>
-              <div className="flex justify-end pt-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    setLifecycleState("idle");
-                    showNotification("Generation operation canceled by user.");
-                  }}
-                >
-                  Cancel Render
-                </Button>
-              </div>
+        <div className="space-y-4 py-2">
+          <div className="rounded-2xl border border-accent/30 bg-accent/10 p-4 text-xs text-slate-200 space-y-2">
+            <div className="flex items-center gap-2 font-bold text-white text-sm">
+              <Key className="size-4 text-accent" />
+              Direct GPU Diffusion Compute
             </div>
-          )}
+            <p className="leading-relaxed">
+              Full-motion video generation requires GPU diffusion compute. CineSync uses your personal SiliconFlow API key to dispatch Wan2.2 video generation jobs directly at zero platform markup.
+            </p>
+            <p className="text-slate-400">
+              You can continue directing camera optics, focal lengths, and scene continuity blueprints for free without an API key.
+            </p>
+          </div>
 
-          {lifecycleState === "completed" && (
-            <div className="space-y-4 py-2">
-              <div className="rounded-2xl border border-emerald/30 bg-emerald/10 p-4 text-xs text-emerald-200 space-y-1.5">
-                <div className="flex items-center gap-2 font-bold text-white text-sm">
-                  <CheckCircle2 className="size-4 text-emerald" />
-                  Shot Generation Complete
-                </div>
-                <p>
-                  Shot <strong>{selectedShot.name}</strong> has been rendered with <strong>{selectedShot.lens}</strong> and validated for character consistency.
-                </p>
-              </div>
-              <Button
-                className="w-full justify-center"
-                onClick={() => setLifecycleState("idle")}
-              >
-                Return to Director Studio
-              </Button>
-            </div>
-          )}
-
-          {lifecycleState === "failed" && (
-            <div className="space-y-4 py-2">
-              <div className="rounded-2xl border border-rose/30 bg-rose/10 p-4 text-xs text-rose-200 space-y-1.5">
-                <div className="flex items-center gap-2 font-bold text-white text-sm">
-                  <AlertTriangle className="size-4 text-rose" />
-                  Generation Error
-                </div>
-                <p>{failureReason || "Provider error occurred."}</p>
-                <p className="text-slate-400">
-                  Check your BYOK SiliconFlow API key in the top navigation or verify credit balances.
-                </p>
-              </div>
-              <Button
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => setLifecycleState("idle")}
-              >
-                Dismiss
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-2.5 pt-2">
+            <Button
+              className="flex-1 justify-center gap-2 font-semibold shadow-glow"
+              onClick={() => {
+                setByokRequiredModalOpen(false);
+                openByokModal();
+              }}
+            >
+              <Key className="size-4" />
+              Configure SiliconFlow Key
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setByokRequiredModalOpen(false)}
+            >
+              Continue in Blueprint Mode
+            </Button>
+          </div>
         </div>
       </Modal>
 
-      {/* Script Decomposition Modal */}
+      {/* Script Decomposition Modal with Transparent Engine Status */}
       <Modal
         open={scriptPanelOpen}
         onClose={() => setScriptPanelOpen(false)}
         title="Screenplay Scene Decomposition"
-        description="Enter screenplay text to extract structured scenes with character tracking."
+        description="Extract structured cinematic scenes and camera setups from screenplay text."
       >
         <div className="space-y-4">
+          <div className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-xs text-slate-300 flex items-center justify-between">
+            <span>
+              Engine: <strong>{user.anthropicKey ? "Claude 3.5 Sonnet NLP (BYOK Active)" : "Deterministic Screenplay Parser (Instant / Free)"}</strong>
+            </span>
+            {!user.anthropicKey && (
+              <button
+                type="button"
+                onClick={openByokModal}
+                className="text-accent text-[11px] font-semibold hover:underline"
+              >
+                Enable Claude 3.5 BYOK
+              </button>
+            )}
+          </div>
+
           <label className="block">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-300">
               Screenplay Excerpt
@@ -1497,7 +1435,7 @@ export default function DirectorModePage() {
 
           <Button
             size="lg"
-            className="w-full gap-2"
+            className="w-full gap-2 font-bold shadow-glow"
             onClick={handleScriptDecomposition}
             disabled={isParsingScript || !scriptInput.trim()}
           >
@@ -1509,7 +1447,7 @@ export default function DirectorModePage() {
             ) : (
               <>
                 <FileText className="size-4" />
-                Decompose Screenplay
+                Decompose Screenplay into Scenes
               </>
             )}
           </Button>

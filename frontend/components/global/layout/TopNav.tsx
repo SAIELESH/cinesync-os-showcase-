@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Menu, X, Key, User, Check, Sparkles, LogOut, Coins, ShieldCheck } from "lucide-react";
+import { Menu, X, Key, User, Check, Sparkles, LogOut, Coins, ShieldCheck, Command, Search } from "lucide-react";
 import { Button, buttonStyles } from "@/components/global/ui/Button";
 import { Modal } from "@/components/global/ui/Modal";
+import { CommandPalette } from "@/components/global/ui/CommandPalette";
 import { useAuth } from "@/lib/auth";
 import { formatCredits, cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [keyModalOpen, setKeyModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [inputEmail, setInputEmail] = useState("");
   const [inputName, setInputName] = useState("");
   const [siliconKey, setSiliconKey] = useState(user.siliconFlowKey || "");
@@ -51,12 +53,18 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-white/8 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="font-[var(--font-sora)] text-lg font-semibold tracking-[0.24em] text-white">
-              CineSync
+      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#05070B]/85 backdrop-blur-2xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-6 lg:gap-8">
+            <Link href="/" className="group flex items-center gap-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-accent/15 border border-accent/30 text-accent group-hover:scale-105 transition">
+                <span className="text-xs font-bold font-mono">CS</span>
+              </div>
+              <span className="font-sora text-base font-bold uppercase tracking-[0.25em] text-white">
+                CineSync<span className="text-accent text-xs ml-1">OS</span>
+              </span>
             </Link>
+
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const active = router.pathname === item.href;
@@ -65,10 +73,10 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "rounded-full px-3.5 py-1.5 text-xs font-medium transition",
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition",
                       active
-                        ? "bg-white/10 text-white shadow-glow"
-                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                        ? "bg-white/10 text-white font-semibold shadow-sm"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     {item.label}
@@ -79,6 +87,20 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Command Palette Button */}
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              className="hidden lg:flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs text-slate-400 hover:border-accent/30 hover:text-white transition"
+              title="Open Director Command Palette (Cmd+K)"
+            >
+              <Search className="size-3.5 text-accent" />
+              <span>Search commands...</span>
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* BYOK API Key Button */}
             <button
               type="button"
@@ -89,7 +111,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
               }}
               title="Configure Bring Your Own Key (BYOK)"
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition",
                 user.siliconFlowKey || user.anthropicKey
                   ? "border-emerald/30 bg-emerald/10 text-emerald"
                   : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"
@@ -97,14 +119,14 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
             >
               <Key className="size-3.5" />
               <span className="hidden sm:inline">
-                {user.siliconFlowKey ? "BYOK Active" : "Add BYOK Key"}
+                {user.siliconFlowKey ? "BYOK Active" : "BYOK Key"}
               </span>
             </button>
 
             {/* Live Credits Badge */}
             <Link
               href="/billing"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-accent/30 transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:border-accent/30 transition"
               title="View credits & billing"
             >
               <Coins className="size-3.5 text-gold" />
@@ -116,7 +138,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
               <button
                 type="button"
                 onClick={() => setAuthModalOpen(true)}
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/10 transition"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-white/10 transition"
               >
                 <div className="size-5 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-[10px]">
                   {user.name.charAt(0).toUpperCase()}
@@ -148,12 +170,25 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
 
         {/* Mobile Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="border-t border-white/8 bg-background/95 px-6 py-4 backdrop-blur-2xl md:hidden">
+          <div className="border-t border-white/8 bg-[#05070B]/98 px-6 py-4 backdrop-blur-2xl md:hidden">
             <div className="mb-3 flex items-center justify-between border-b border-white/8 pb-3 text-xs text-slate-300">
-              <span>Account: {user.name}</span>
+              <span>Director: {user.name}</span>
               <span className="text-gold font-medium">{formatCredits(user.credits)}</span>
             </div>
             <nav className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setPaletteOpen(true);
+                }}
+                className="flex items-center justify-between rounded-xl border border-accent/20 bg-accent/10 px-4 py-2.5 text-sm text-accent text-left font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  <Command className="size-4" />
+                  Quick Command Palette
+                </span>
+                <span className="text-xs font-mono">⌘K</span>
+              </button>
               {navItems.map((item) => {
                 const active = router.pathname === item.href;
                 return (
@@ -200,6 +235,9 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
           </div>
         )}
       </header>
+
+      {/* Embedded Command Palette Controller */}
+      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
       {/* BYOK API Key Modal */}
       <Modal

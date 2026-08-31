@@ -26,6 +26,7 @@ import { Slider } from "@/components/global/ui/Slider";
 import { Tabs } from "@/components/global/ui/Tabs";
 import { Toggle } from "@/components/global/ui/Toggle";
 import { VideoPlayer } from "@/components/global/ui/VideoPlayer";
+import { TimelineScrubber, type TimelineShot } from "@/components/global/ui/TimelineScrubber";
 import { parseScript, generateShots, generateVideo, checkVideoStatus, uploadImage } from "@/lib/api";
 import type { Scene as APIScene, Shot as APIShot } from "@/lib/api";
 import { scenes, projects, type Scene } from "@/lib/data";
@@ -137,6 +138,46 @@ export default function DirectorModePage() {
       [key]: !current[key]
     }));
   };
+
+  const timelineShots: TimelineShot[] = useMemo(
+    () =>
+      selectedScene.shots.map((s, idx) => ({
+        id: s.id,
+        name: s.name,
+        duration: parseFloat(s.duration.replace("s", "")) || 4,
+        lens: idx === 0 ? "35mm Prime" : idx === 1 ? "50mm Master" : "85mm Tele",
+        movement: idx === 0 ? "Slow Dolly In" : idx === 1 ? "Tracking Pan" : "Micro Push In"
+      })),
+    [selectedScene.shots]
+  );
+
+  // Keyboard shortcut listener for Director ergonomics
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept when user is typing in input or textarea
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
+      if (e.key === "1" && selectedScene.shots[0]) {
+        handleShotSelect(selectedScene.shots[0].id);
+      } else if (e.key === "2" && selectedScene.shots[1]) {
+        handleShotSelect(selectedScene.shots[1].id);
+      } else if (e.key === "3" && selectedScene.shots[2]) {
+        handleShotSelect(selectedScene.shots[2].id);
+      } else if (e.key.toLowerCase() === "m") {
+        setAutoMode((prev) => !prev);
+      } else if (e.key.toLowerCase() === "r" && !isGeneratingVideo) {
+        handleRegenerate();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleRegenerate, isGeneratingVideo, selectedScene.shots]);
 
   // Backend API Handlers
   const handleParseScript = async () => {
@@ -382,6 +423,12 @@ export default function DirectorModePage() {
             </Card>
 
             <div className="space-y-6">
+              <TimelineScrubber
+                shots={timelineShots}
+                currentShotId={selectedShot.id}
+                onSelectShot={handleShotSelect}
+              />
+
               <Card className="gold-glow p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <div>

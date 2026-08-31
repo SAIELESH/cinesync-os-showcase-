@@ -3,14 +3,16 @@ import { cn } from "@/lib/utils";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
   glow?: boolean;
+  hoverEffect?: boolean;
 };
 
-export function Card({ className, glow = false, ...props }: CardProps) {
+export function Card({ className, glow = false, hoverEffect = false, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "glass-border panel-gradient relative overflow-hidden rounded-2xl border border-white/8",
-        glow && "shadow-glow",
+        "relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B1017] shadow-card-elevation backdrop-blur-xl",
+        hoverEffect && "studio-panel-hover transition duration-200 hover:border-accent/30",
+        glow && "shadow-glow border-accent/25",
         className
       )}
       {...props}

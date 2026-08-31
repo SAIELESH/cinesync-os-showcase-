@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Sparkles, ArrowRight, Camera, Film, Layers, CheckCircle2 } from "lucide-react";
+import { Play, Sparkles, ArrowRight, Camera, Film, Layers, CheckCircle2, Sliders, Radio } from "lucide-react";
 import { Card } from "@/components/global/ui/Card";
 import { buttonStyles } from "@/components/global/ui/Button";
 import { cn } from "@/lib/utils";
@@ -9,39 +9,42 @@ import { cn } from "@/lib/utils";
 const demoShots = [
   {
     id: "shot-1",
-    tag: "Shot 1 · Establishing",
-    name: "Wide Street Reveal",
-    lens: "35mm Prime",
-    movement: "Slow Dolly In",
-    framing: "Rule of Thirds",
+    tag: "SHOT 01 · ESTABLISHING",
+    name: "Wide Alley Reveal",
+    lens: "35mm Prime f/1.4",
+    movement: "Slow Push Dolly",
+    framing: "2.39:1 Anamorphic",
+    timecode: "00:00:00:00",
     duration: "4.5s",
-    desc: "Camera tracks low across rain reflections on asphalt as the detective steps beneath flickering amber neon.",
+    desc: "Camera tracks low across wet cobblestones as amber neon reflects through falling rain. Detective steps into the frame.",
     characterStatus: "Character Anchor: 100%",
-    lightingStatus: "Neon Rim Light Locked"
+    lightingStatus: "Neon Rim Light: Locked"
   },
   {
     id: "shot-2",
-    tag: "Shot 2 · Coverage",
+    tag: "SHOT 02 · COVERAGE",
     name: "Medium Over-Shoulder",
-    lens: "50mm Master",
+    lens: "50mm Master Prime",
     movement: "Tracking Pan",
-    framing: "Golden Ratio",
+    framing: "Rule of Thirds",
+    timecode: "00:00:04:12",
     duration: "3.8s",
-    desc: "Maintains facial keypoints and trench coat fabric texture while keeping background neon bokeh consistent.",
+    desc: "Maintains face keypoints and wet trench coat texture while preserving background neon bokeh geometry.",
     characterStatus: "Face Identity: Persistent",
     lightingStatus: "Directional Match: 100%"
   },
   {
     id: "shot-3",
-    tag: "Shot 3 · Reaction",
-    name: "Close-up Intensity",
-    lens: "85mm Anamorphic",
-    movement: "Subtle Push In",
+    tag: "SHOT 03 · REACTION",
+    name: "Tight Character Close-up",
+    lens: "85mm Telephoto T/1.5",
+    movement: "Micro Push In",
     framing: "Center Subject",
+    timecode: "00:00:08:06",
     duration: "3.2s",
-    desc: "Shallow depth of field isolating eyes; rain streak physics and color grading adhere strictly to master scene.",
+    desc: "Extremely shallow depth of field isolating eyes; rain streak physics and color grade adhere strictly to master scene.",
     characterStatus: "Keypoint Constraint: Active",
-    lightingStatus: "Atmosphere: Consistent"
+    lightingStatus: "Atmosphere: Coherent"
   }
 ];
 
@@ -51,27 +54,32 @@ export function ExamplePanel() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 24 }}
+      initial={{ opacity: 0, scale: 0.97, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.15 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
       className="lg:justify-self-end w-full"
     >
-      <Card className="noise spotlight gold-glow relative overflow-hidden rounded-[28px] p-5 sm:p-6 shadow-glow border border-white/10">
-        <div className="flex items-center justify-between">
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.1] bg-[#0B1017] p-5 sm:p-6 shadow-modal-elevation">
+        {/* Header HUD */}
+        <div className="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
           <div className="flex items-center gap-2">
             <span className="flex size-2 rounded-full bg-emerald animate-pulse" />
-            <span className="text-xs uppercase tracking-[0.28em] text-slate-300 font-medium">Live Studio Breakdown</span>
+            <span className="text-xs font-mono uppercase tracking-wider text-slate-300">
+              Multi-Shot Consistency Engine
+            </span>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] uppercase tracking-wider text-slate-400">
-            Claude 3.5 + Wan2.2
+          <span className="rounded-md border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-mono text-accent">
+            CLAUDE 3.5 + WAN2.2
           </span>
         </div>
 
-        {/* Screenplay Input Beat */}
-        <div className="mt-4 rounded-2xl border border-white/8 bg-black/40 p-4">
+        {/* Screenplay Input */}
+        <div className="mt-4 rounded-xl border border-white/[0.06] bg-black/50 p-3.5">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="uppercase tracking-[0.24em] font-mono text-accent">Scene 01 · Script Input</span>
-            <span className="font-mono text-[11px]">Night / Exterior</span>
+            <span className="font-mono text-[11px] text-accent uppercase tracking-wider">
+              Screenplay Input Beat
+            </span>
+            <span className="font-mono text-[10px] text-slate-400">SCENE 01 · EXT / NIGHT</span>
           </div>
           <p className="mt-2 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed">
             <strong className="text-white">EXT. RAIN-SLICKED ALLEY - NIGHT</strong><br />
@@ -79,11 +87,13 @@ export function ExamplePanel() {
           </p>
         </div>
 
-        {/* Interactive Multi-Shot Selector */}
+        {/* Shot Selection Buttons */}
         <div className="mt-4">
-          <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-            <span className="uppercase tracking-[0.24em]">Decomposed Shots (Click to preview)</span>
-            <span className="text-gold font-medium">3 Shots Generated</span>
+          <div className="mb-2 flex items-center justify-between text-xs">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400">
+              Decomposed Shots
+            </span>
+            <span className="font-mono text-[11px] text-gold">3 Shots · 11.5s Total</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {demoShots.map((shot, idx) => (
@@ -92,26 +102,30 @@ export function ExamplePanel() {
                 type="button"
                 onClick={() => setActiveShotIndex(idx)}
                 className={cn(
-                  "rounded-xl border p-2 text-left transition-all",
+                  "rounded-xl border p-2.5 text-left transition-all duration-150",
                   activeShotIndex === idx
-                    ? "border-accent/50 bg-accent/15 text-white shadow-glow"
-                    : "border-white/8 bg-white/5 text-slate-400 hover:border-white/15 hover:bg-white/8"
+                    ? "border-accent bg-accent/15 text-white shadow-glow"
+                    : "border-white/[0.08] bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-white"
                 )}
               >
-                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Shot {idx + 1}</div>
-                <div className="text-xs font-semibold truncate text-white mt-0.5">{shot.lens}</div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  Shot 0{idx + 1}
+                </div>
+                <div className="text-xs font-semibold text-white mt-0.5 truncate">
+                  {shot.name}
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Dynamic Shot Preview Card */}
-        <div className="mt-4 rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_32%),radial-gradient(circle_at_75%_20%,rgba(245,200,106,0.15),transparent_28%),linear-gradient(180deg,rgba(12,18,28,0.9),rgba(4,6,10,0.98))] p-5 relative overflow-hidden">
+        {/* Shot Details Box */}
+        <div className="mt-4 rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-black/60 p-4 relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-300 backdrop-blur">
-              {currentShot.tag}
+            <span className="rounded bg-black/60 border border-white/10 px-2 py-0.5 text-[10px] font-mono text-slate-300">
+              {currentShot.tag} · {currentShot.timecode}
             </span>
-            <div className="flex items-center gap-1 text-[11px] text-emerald font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald">
               <CheckCircle2 className="size-3.5" />
               <span>{currentShot.characterStatus}</span>
             </div>
@@ -124,55 +138,50 @@ export function ExamplePanel() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="mt-4 space-y-3"
+              className="mt-3 space-y-3"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-[var(--font-sora)] text-lg font-semibold text-white">{currentShot.name}</h3>
-                  <p className="mt-1 text-xs sm:text-sm text-slate-300 leading-relaxed">{currentShot.desc}</p>
-                </div>
-                <Link
-                  href="/app"
-                  className="shrink-0 inline-flex size-10 items-center justify-center rounded-full border border-accent/40 bg-accent/20 text-white shadow-glow transition hover:scale-110 hover:bg-accent/30"
-                  title="Open in Director Studio"
-                >
-                  <Play className="ml-0.5 size-4 fill-current text-accent" />
-                </Link>
+              <div>
+                <h3 className="font-sora text-base font-semibold text-white">
+                  {currentShot.name}
+                </h3>
+                <p className="mt-1 text-xs text-slate-300 leading-relaxed">
+                  {currentShot.desc}
+                </p>
               </div>
 
-              {/* Camera Directives Pill Matrix */}
+              {/* Technical Directives */}
               <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-300">
-                  <Camera className="size-3 text-gold" /> {currentShot.lens}
+                <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-black/50 px-2 py-0.5 text-[10px] font-mono text-gold">
+                  <Camera className="size-3" /> {currentShot.lens}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-300">
-                  <Film className="size-3 text-accent" /> {currentShot.movement}
+                <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-black/50 px-2 py-0.5 text-[10px] font-mono text-accent">
+                  <Film className="size-3" /> {currentShot.movement}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/40 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-300">
-                  <Layers className="size-3 text-emerald" /> {currentShot.framing}
+                <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-black/50 px-2 py-0.5 text-[10px] font-mono text-slate-300">
+                  <Layers className="size-3" /> {currentShot.framing}
                 </span>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Action Button to Open Studio */}
+        {/* CTA Button */}
         <div className="mt-4 pt-1">
           <Link
             href="/app"
             className={buttonStyles({
               size: "lg",
-              className: "w-full justify-between gap-2 shadow-glow group"
+              className: "w-full justify-between gap-2 shadow-glow group bg-foreground text-background font-semibold"
             })}
           >
-            <span className="flex items-center gap-2 font-medium">
+            <span className="flex items-center gap-2">
               <Sparkles className="size-4 text-gold" />
-              Open Interactive Director Studio
+              Launch Director Studio Controls
             </span>
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
-      </Card>
+      </div>
     </motion.div>
   );
 }

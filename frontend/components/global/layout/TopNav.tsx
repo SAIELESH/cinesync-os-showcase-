@@ -54,7 +54,26 @@ export function TopNav({ actionLabel, actionHref }: TopNavProps = {}) {
 
   useEffect(() => {
     setIsMac(typeof navigator !== "undefined" && navigator.platform.toUpperCase().indexOf("MAC") >= 0);
-  }, []);
+
+    const handleOpenByok = () => {
+      setSiliconKey(user.siliconFlowKey || "");
+      setAnthropicKey(user.anthropicKey || "");
+      setTestResult(null);
+      setKeyModalOpen(true);
+    };
+
+    const handleOpenAuth = () => {
+      setAuthModalOpen(true);
+    };
+
+    window.addEventListener("open-byok-modal", handleOpenByok);
+    window.addEventListener("open-auth-modal", handleOpenAuth);
+
+    return () => {
+      window.removeEventListener("open-byok-modal", handleOpenByok);
+      window.removeEventListener("open-auth-modal", handleOpenAuth);
+    };
+  }, [user.anthropicKey, user.siliconFlowKey]);
 
   const handleSaveKeys = (e: React.FormEvent) => {
     e.preventDefault();

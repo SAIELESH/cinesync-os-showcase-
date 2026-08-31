@@ -175,6 +175,27 @@ export default function LandingPage() {
 
           {/* Trust & Conversion Section */}
           <TrustSection trustPoints={trustPoints} />
+
+          {/* Official Showcase Footer */}
+          <footer className="mt-20 border-t border-white/10 pt-10 pb-16 text-center">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="font-sora text-sm font-semibold text-white">
+                CineSync Director OS
+              </div>
+              <p className="text-xs text-slate-400">
+                A project designed and developed by <strong className="text-slate-200">Sailesh Krishnan</strong>
+              </p>
+              <a
+                href="https://github.com/SAIELESH/cinesync-os-showcase-"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-accent transition hover:border-accent/40 hover:bg-accent/10 hover:text-white"
+              >
+                <span>View source and technical case study on GitHub</span>
+                <span className="text-[11px]">↗</span>
+              </a>
+            </div>
+          </footer>
         </div>
       </section>
     </AppShell>

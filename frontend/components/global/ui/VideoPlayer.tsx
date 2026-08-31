@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Sparkles, Camera, Eye, CheckCircle2, AlertCircle, Film } from "lucide-react";
+import { Play, Pause, Sparkles, Camera, Eye, CheckCircle2, AlertCircle, Film, Key, Lock } from "lucide-react";
 import { Card } from "@/components/global/ui/Card";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type VideoPlayerProps = {
@@ -37,8 +38,26 @@ export function VideoPlayer({
   shotTheme,
   continuityStatus = { character: true, lighting: true, style: true }
 }: VideoPlayerProps) {
+  const { user } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
+  const [byokNoticeOpen, setByokNoticeOpen] = useState(false);
+
+  const canPlayLiveVideo = Boolean(user.isLoggedIn || user.siliconFlowKey);
+
+  const handlePlayClick = () => {
+    if (!canPlayLiveVideo) {
+      setByokNoticeOpen(true);
+      return;
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const openByokModal = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-byok-modal"));
+    }
+  };
 
   // Dynamic Storyboard Theme Background
   const getThemeBackground = () => {
@@ -50,7 +69,6 @@ export function VideoPlayer({
           <div className="absolute top-1/4 left-1/3 size-64 rounded-full bg-cyan-500/10 blur-3xl" />
           <div className="absolute bottom-1/3 right-1/4 size-48 rounded-full bg-blue-600/15 blur-3xl" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(56,189,248,0.15),transparent_60%)]" />
-          {/* Subtle Rain Streaks Effect */}
           <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(105deg,transparent,transparent_15px,rgba(255,255,255,0.06)_16px,transparent_17px)]" />
         </div>
       );
@@ -89,7 +107,7 @@ export function VideoPlayer({
         "group relative flex flex-col justify-between overflow-hidden border border-white/10 bg-[#070A0F] p-4 sm:p-5 shadow-modal-elevation min-h-[320px] w-full"
       )}
     >
-      {src ? (
+      {src && canPlayLiveVideo ? (
         <div className="relative -m-4 sm:-m-5 aspect-video w-[calc(100%+2rem)] sm:w-[calc(100%+2.5rem)] overflow-hidden rounded-2xl bg-black">
           <video
             src={src}
@@ -172,24 +190,56 @@ export function VideoPlayer({
             </div>
           </div>
 
-          {/* Center Play Button Simulator */}
+          {/* Center Play / Preview Transport or BYOK Gate */}
           <div className="relative z-20 my-auto flex flex-col items-center justify-center py-4">
-            <button
-              type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="group/btn flex size-14 items-center justify-center rounded-full border border-white/20 bg-black/80 text-white shadow-glow backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-accent hover:bg-accent hover:text-background"
-              aria-label={src ? "Play Generated Shot" : isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing"}
-              title={src ? "Play Generated Shot" : isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing"}
-            >
-              {isPlaying ? (
-                <Pause className="size-5 fill-current" />
-              ) : (
-                <Play className="ml-1 size-5 fill-current" />
-              )}
-            </button>
-            <span className="mt-2 text-[10px] font-mono uppercase tracking-wider text-slate-400">
-              {src ? "Play Generated Shot" : "Preview Sequence Timing"}
-            </span>
+            {byokNoticeOpen && !canPlayLiveVideo ? (
+              <div className="max-w-xs rounded-2xl border border-accent/30 bg-[#0c121c]/95 p-3.5 text-center shadow-2xl backdrop-blur-xl space-y-2">
+                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-white">
+                  <Key className="size-4 text-accent" />
+                  BYOK Required for Video Playback
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Live AI video rendering requires a BYOK API key. Add your personal SiliconFlow key to render and play full-motion video sequences.
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={openByokModal}
+                    className="rounded-lg bg-accent px-2.5 py-1 text-xs font-semibold text-background hover:bg-white transition"
+                  >
+                    Configure BYOK Key
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setByokNoticeOpen(false)}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePlayClick}
+                  className="group/btn flex size-14 items-center justify-center rounded-full border border-white/20 bg-black/80 text-white shadow-glow backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-accent hover:bg-accent hover:text-background"
+                  aria-label={canPlayLiveVideo ? (isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing") : "Configure BYOK for Live Playback"}
+                  title={canPlayLiveVideo ? (isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing") : "Configure BYOK for Live Playback"}
+                >
+                  {!canPlayLiveVideo ? (
+                    <Key className="size-5 text-accent" />
+                  ) : isPlaying ? (
+                    <Pause className="size-5 fill-current" />
+                  ) : (
+                    <Play className="ml-1 size-5 fill-current" />
+                  )}
+                </button>
+                <span className="mt-2 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  {!canPlayLiveVideo ? "BYOK Mode · Click to Configure Key" : isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing"}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Bottom HUD: Scene Metadata & Continuity Chips */}

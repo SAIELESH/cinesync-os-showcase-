@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Sparkles, Maximize2, Camera, Eye, Radio } from "lucide-react";
+import { Play, Pause, Sparkles, Camera, Eye } from "lucide-react";
 import { Card } from "@/components/global/ui/Card";
 import { cn } from "@/lib/utils";
 
@@ -75,8 +75,8 @@ export function VideoPlayer({
               <div className="border-r border-b border-white/15" />
               <div className="border-r border-b border-white/15" />
               <div className="border-b border-white/15" />
-              <div className="border-r border-white/15" />
-              <div className="border-r border-white/15" />
+              <div className="border-r border-b border-white/15" />
+              <div className="border-r border-b border-white/15" />
               <div />
             </div>
           )}
@@ -114,7 +114,7 @@ export function VideoPlayer({
           </div>
 
           {/* Center Play Button Simulator */}
-          <div className="relative z-20 my-auto flex items-center justify-center">
+          <div className="relative z-20 my-auto flex items-center justify-center py-2">
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
@@ -138,7 +138,7 @@ export function VideoPlayer({
                   {title}
                 </h3>
               </div>
-              <p className="mt-1 text-xs text-slate-300 leading-relaxed line-clamp-2">
+              <p className="mt-1 text-xs text-slate-300 leading-relaxed">
                 {subtitle}
               </p>
             </div>

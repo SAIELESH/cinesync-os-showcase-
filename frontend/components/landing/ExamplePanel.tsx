@@ -111,7 +111,7 @@ export function ExamplePanel() {
                 <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                   Shot 0{idx + 1}
                 </div>
-                <div className="text-xs font-semibold text-white mt-0.5 truncate">
+                <div className="text-xs font-semibold text-white mt-0.5 leading-snug">
                   {shot.name}
                 </div>
               </button>

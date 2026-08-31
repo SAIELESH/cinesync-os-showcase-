@@ -116,10 +116,10 @@ export default function WorkflowPage() {
                     {item.done ? "✓" : `0${item.step}`}
                   </div>
                   <div className="min-w-0">
-                    <div className={`text-xs font-semibold truncate ${item.done ? "text-white" : "text-slate-400"}`}>
+                    <div className={`text-xs font-semibold leading-tight ${item.done ? "text-white" : "text-slate-400"}`}>
                       {item.label}
                     </div>
-                    <div className="text-[10px] font-mono text-slate-400">
+                    <div className="text-[10px] font-mono text-slate-400 mt-0.5">
                       {item.done ? "Completed" : `Step 0${item.step}`}
                     </div>
                   </div>

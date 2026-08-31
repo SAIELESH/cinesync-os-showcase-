@@ -76,7 +76,7 @@ export function HeroSection({ heroStats }: HeroSectionProps) {
             </button>
           </div>
 
-          <div className="mt-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-8">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-white/10 pt-8">
             {heroStats.map(([value, label]) => (
               <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3.5 backdrop-blur">
                 <div className="font-sora text-xl sm:text-2xl font-bold text-white tracking-tight">{value}</div>

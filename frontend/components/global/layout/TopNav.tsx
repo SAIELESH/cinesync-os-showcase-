@@ -118,8 +118,8 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
               )}
             >
               <Key className="size-3.5" />
-              <span className="hidden sm:inline">
-                {user.siliconFlowKey ? "BYOK Active" : "BYOK Key"}
+              <span className="text-[11px] font-medium">
+                {user.siliconFlowKey ? "BYOK Active" : "BYOK"}
               </span>
             </button>
 

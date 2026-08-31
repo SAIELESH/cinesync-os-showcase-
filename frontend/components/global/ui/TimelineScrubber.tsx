@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Film, Clock } from "lucide-react";
-import { motion } from "framer-motion";
 
 export type TimelineShot = {
   id: string;
@@ -98,7 +97,6 @@ export function TimelineScrubber({
     if (currentIndex > 0) {
       const prevShot = shots[currentIndex - 1];
       onSelectShot(prevShot.id);
-      // jump time to beginning of prev shot
       const prevTime = shots.slice(0, currentIndex - 1).reduce((acc, s) => acc + (s.duration || 4), 0);
       setCurrentTime(prevTime);
     }
@@ -190,7 +188,7 @@ export function TimelineScrubber({
         <div
           ref={trackRef}
           onClick={handleTrackClick}
-          className="relative mt-2 flex h-16 w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-black/60"
+          className="relative mt-2 flex min-h-[72px] w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-black/60"
         >
           {shots.map((shot, idx) => {
             const shotDur = shot.duration || 4;
@@ -201,27 +199,27 @@ export function TimelineScrubber({
               <div
                 key={shot.id}
                 style={{ width: `${shotWidthPct}%` }}
-                className={`relative flex flex-col justify-between border-r border-white/15 p-2 transition-all ${
+                className={`relative flex flex-col justify-between border-r border-white/15 p-2.5 transition-all min-w-[100px] ${
                   isSelected
                     ? "bg-accent/15 border-t-2 border-t-accent"
                     : "bg-white/[0.03] hover:bg-white/[0.08]"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-white truncate">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] font-semibold text-white leading-tight">
                     #{idx + 1} {shot.name}
                   </span>
-                  <span className="text-[9px] font-mono text-slate-400">{shotDur}s</span>
+                  <span className="text-[9px] font-mono text-slate-400 shrink-0">{shotDur}s</span>
                 </div>
 
-                <div className="flex items-center gap-1.5 truncate">
+                <div className="flex flex-wrap items-center gap-1 mt-1">
                   {shot.lens && (
-                    <span className="rounded bg-black/40 px-1 py-0.5 text-[9px] font-mono text-gold border border-white/5">
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-mono text-gold border border-white/10 whitespace-nowrap">
                       {shot.lens}
                     </span>
                   )}
                   {shot.movement && (
-                    <span className="rounded bg-black/40 px-1 py-0.5 text-[9px] text-accent border border-white/5 truncate">
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] text-accent border border-white/10 whitespace-nowrap">
                       {shot.movement}
                     </span>
                   )}

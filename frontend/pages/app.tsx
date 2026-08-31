@@ -437,7 +437,7 @@ export default function DirectorModePage() {
                   </div>
                   <div className="text-sm text-slate-400">Click a shot to update preview</div>
                 </div>
-                <div className="grid gap-3 lg:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {selectedScene.shots.map((shot) => {
                     const active = shot.id === selectedShot.id;
 
@@ -447,15 +447,17 @@ export default function DirectorModePage() {
                         type="button"
                         onClick={() => handleShotSelect(shot.id)}
                         className={cn(
-                          "rounded-2xl border p-4 text-left transition",
+                          "rounded-2xl border p-4 text-left transition flex flex-col justify-between",
                           active
                             ? "border-accent/35 bg-accent/10 shadow-glow"
                             : "border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8"
                         )}
                       >
-                        <div className="text-xs uppercase tracking-[0.22em] text-slate-500">{shot.duration}</div>
-                        <div className="mt-2 font-medium text-white">{shot.name}</div>
-                        <p className="mt-2 text-sm text-slate-300">{shot.description}</p>
+                        <div>
+                          <div className="text-xs uppercase tracking-[0.22em] text-slate-400 font-mono">{shot.duration}</div>
+                          <div className="mt-1.5 font-medium text-white text-sm sm:text-base leading-snug">{shot.name}</div>
+                          <p className="mt-2 text-xs text-slate-300 leading-relaxed break-words">{shot.description}</p>
+                        </div>
                       </button>
                     );
                   })}

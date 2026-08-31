@@ -680,7 +680,7 @@ export default function DirectorModePage() {
           setLifecycleState("completed");
           setLifecycleProgress(100);
           setLifecycleMessage("Shot successfully rendered and validated for sequence continuity.");
-          showNotification(`Shot ${selectedShot.name} v${selectedShot.version + 1} generated successfully.`);
+          showNotification(`Shot "${selectedShot.name}" rendered successfully.`);
         }, 1200);
       } catch (err) {
         if (!isMountedRef.current) return;
@@ -1244,7 +1244,7 @@ export default function DirectorModePage() {
                       Active Viewport
                     </div>
                     <div className="font-sora text-base font-bold text-white truncate">
-                      {selectedShot.name} · v{selectedShot.version}
+                      {selectedShot.name}
                     </div>
                   </div>
                   <span
@@ -1255,7 +1255,7 @@ export default function DirectorModePage() {
                         : "border-cyan-400/40 bg-cyan-950/40 text-cyan-300"
                     )}
                   >
-                    {selectedShot.isDraft ? "● UNRENDERED CHANGES" : `● DIRECTING BLUEPRINT V${selectedShot.version}`}
+                    {selectedShot.isDraft ? "● UNRENDERED CHANGES" : "● DIRECTING BLUEPRINT"}
                   </span>
                 </div>
 
@@ -1304,7 +1304,7 @@ export default function DirectorModePage() {
                     {user.siliconFlowKey ? (
                       <>
                         <Key className="size-3.5 text-emerald" />
-                        <span>Generation Method: BYOK Direct (Wan2.2)</span>
+                        <span>Generation Method: BYOK Direct</span>
                       </>
                     ) : user.credits >= 20 ? (
                       <>
@@ -1337,8 +1337,8 @@ export default function DirectorModePage() {
                   >
                     <RefreshCw className="size-4" />
                     {selectedShot.isDraft
-                      ? `Render v${selectedShot.version + 1} with Changes`
-                      : `Regenerate Shot Cut (v${selectedShot.version + 1})`}
+                      ? "Render with Changes"
+                      : "Render Shot Cut"}
                   </Button>
                 </div>
               </Card>
@@ -1392,12 +1392,12 @@ export default function DirectorModePage() {
         onClose={() => setLifecycleState("idle")}
         title={
           lifecycleState === "completed"
-            ? `Shot Rendered: v${selectedShot.version}`
+            ? "Shot Generation Complete"
             : lifecycleState === "failed"
             ? "Generation Failed"
             : "Executing Shot Generation"
         }
-        description="Wan2.2 Multi-Shot Neural Video Diffusion Pipeline"
+        description="Multi-Shot Neural Video Diffusion Pipeline"
       >
         <div className="space-y-4">
           {lifecycleState !== "completed" && lifecycleState !== "failed" && (
@@ -1415,11 +1415,6 @@ export default function DirectorModePage() {
               <div className="rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-slate-200 font-mono">
                 {lifecycleMessage}
               </div>
-              {activeTaskId && (
-                <div className="text-[10px] font-mono text-slate-400">
-                  Task Identifier: {activeTaskId}
-                </div>
-              )}
               <div className="flex justify-end pt-2">
                 <Button
                   variant="secondary"
@@ -1443,7 +1438,7 @@ export default function DirectorModePage() {
                   Shot Generation Complete
                 </div>
                 <p>
-                  Shot <strong>{selectedShot.name} v{selectedShot.version}</strong> has been rendered with <strong>{selectedShot.lens}</strong> and validated for character consistency.
+                  Shot <strong>{selectedShot.name}</strong> has been rendered with <strong>{selectedShot.lens}</strong> and validated for character consistency.
                 </p>
               </div>
               <Button

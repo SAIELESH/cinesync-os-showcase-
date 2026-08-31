@@ -119,7 +119,7 @@ export function VideoPlayer({
           {showMeta && (
             <div className="pointer-events-none absolute right-3 top-3 flex items-center gap-2">
               <span className="rounded-full border border-emerald/30 bg-black/80 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-emerald backdrop-blur">
-                ● VIDEO RENDER V{version}
+                ● VIDEO RENDER
               </span>
             </div>
           )}
@@ -161,7 +161,7 @@ export function VideoPlayer({
                     isDraft ? "bg-amber" : "bg-cyan-400 animate-pulse"
                   )}
                 />
-                {isDraft ? "UNRENDERED CHANGES" : `DIRECTING BLUEPRINT V${version}`}
+                {isDraft ? "UNRENDERED CHANGES" : "DIRECTING BLUEPRINT"}
               </div>
               <span className="rounded-full border border-white/10 bg-black/70 px-2.5 py-0.5 text-[10px] font-mono text-slate-200 backdrop-blur whitespace-nowrap">
                 {focalLength}

@@ -120,7 +120,7 @@ export const scenes: Scene[] = [
 export const projects: Project[] = [
   {
     id: "project-1",
-    name: "Launch Trailer v3",
+    name: "Launch Trailer Showcase",
     updatedAt: "Updated 2 hours ago",
     thumbnailLabel: "Neon hallway frame",
     state: "In review"

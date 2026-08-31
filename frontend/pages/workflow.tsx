@@ -180,10 +180,10 @@ export default function WorkflowPage() {
                     <div className="size-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
                     <div>
                       <div className="font-sora text-sm font-semibold text-white">
-                        Rendering Video on Wan2.2 Queue...
+                        Rendering Cinematic Scene Coverage...
                       </div>
-                      <div className="text-xs font-mono text-slate-400 mt-0.5">
-                        Task Identifier: {taskId}
+                      <div className="text-xs text-slate-400 mt-0.5">
+                        Processing multi-shot character and camera consistency
                       </div>
                     </div>
                   </div>

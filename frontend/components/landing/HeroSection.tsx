@@ -23,7 +23,7 @@ export function HeroSection({ heroStats }: HeroSectionProps) {
           className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 text-xs font-mono text-accent shadow-glow"
         >
           <Sparkles className="size-3.5 text-gold" />
-          <span>PRODUCTION PIPELINE · V2.2 RELEASE</span>
+          <span>STUDIO AI CINEMATOGRAPHY PIPELINE</span>
         </motion.div>
 
         <motion.div

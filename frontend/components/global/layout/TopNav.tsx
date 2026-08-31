@@ -1,38 +1,60 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Menu, X, Key, User, Check, Sparkles, LogOut, Coins, ShieldCheck, Command, Search } from "lucide-react";
-import { Button, buttonStyles } from "@/components/global/ui/Button";
+import {
+  Clapperboard,
+  Sparkles,
+  Command,
+  Key,
+  Coins,
+  ShieldAlert,
+  ShieldCheck,
+  Check,
+  Trash2,
+  Eye,
+  EyeOff,
+  Search,
+  Menu,
+  X,
+  ExternalLink
+} from "lucide-react";
+import { Button } from "@/components/global/ui/Button";
 import { Modal } from "@/components/global/ui/Modal";
 import { CommandPalette } from "@/components/global/ui/CommandPalette";
 import { useAuth } from "@/lib/auth";
-import { formatCredits, cn } from "@/lib/utils";
+import { cn, formatCredits } from "@/lib/utils";
 
 type TopNavProps = {
   actionLabel?: string;
   actionHref?: string;
 };
 
-const navItems = [
-  { label: "Workflow", href: "/workflow" },
-  { label: "Director Studio", href: "/app" },
-  { label: "Quick Generate", href: "/generate" },
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Billing", href: "/billing" },
-];
-
-export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }: TopNavProps) {
+export function TopNav({ actionLabel, actionHref }: TopNavProps = {}) {
   const router = useRouter();
   const { user, login, logout, saveApiKeys } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [keyModalOpen, setKeyModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [inputEmail, setInputEmail] = useState("");
-  const [inputName, setInputName] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Form states
   const [siliconKey, setSiliconKey] = useState(user.siliconFlowKey || "");
   const [anthropicKey, setAnthropicKey] = useState(user.anthropicKey || "");
+  const [showSiliconKey, setShowSiliconKey] = useState(false);
+  const [showAnthropicKey, setShowAnthropicKey] = useState(false);
   const [keySaved, setKeySaved] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [isTestingKey, setIsTestingKey] = useState(false);
+
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginName, setLoginName] = useState("");
+
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(typeof navigator !== "undefined" && navigator.platform.toUpperCase().indexOf("MAC") >= 0);
+  }, []);
 
   const handleSaveKeys = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,27 +66,63 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
     }, 1200);
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleClearKeys = () => {
+    setSiliconKey("");
+    setAnthropicKey("");
+    saveApiKeys("", "");
+    setTestResult("All API keys removed from browser storage.");
+  };
+
+  const handleTestKey = () => {
+    setIsTestingKey(true);
+    setTestResult(null);
+    setTimeout(() => {
+      setIsTestingKey(false);
+      if (siliconKey.startsWith("sk-") && siliconKey.length > 20) {
+        setTestResult("SiliconFlow Key format valid (Bearer token prefix verified).");
+      } else if (!siliconKey) {
+        setTestResult("No SiliconFlow key provided. Blueprint Mode will be used.");
+      } else {
+        setTestResult("Invalid key format: SiliconFlow keys typically begin with sk-");
+      }
+    }, 800);
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputEmail.trim()) return;
-    login(inputEmail, inputName);
+    if (!loginEmail.trim()) return;
+    login(loginEmail, loginName || undefined);
     setAuthModalOpen(false);
   };
 
+  const navItems = [
+    { label: "Studio", href: "/app" },
+    { label: "Pipeline", href: "/workflow" },
+    { label: "Projects", href: "/dashboard" },
+    { label: "Billing", href: "/billing" }
+  ];
+
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#05070B]/85 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6 lg:gap-8">
-            <Link href="/" className="group flex items-center gap-2">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-accent/15 border border-accent/30 text-accent group-hover:scale-105 transition">
-                <span className="text-xs font-bold font-mono">CS</span>
+      <header className="sticky top-0 z-40 w-full border-b border-white/8 bg-[#05070B]/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo & Platform Tag */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-accent text-background shadow-glow transition group-hover:scale-105">
+                <Clapperboard className="size-5 font-bold" />
               </div>
-              <span className="font-sora text-base font-bold uppercase tracking-[0.25em] text-white">
-                CineSync<span className="text-accent text-xs ml-1">OS</span>
-              </span>
+              <div>
+                <span className="font-sora text-base font-bold tracking-tight text-white">
+                  CineSync
+                </span>
+                <span className="ml-1.5 rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-accent border border-accent/20">
+                  Director OS
+                </span>
+              </div>
             </Link>
 
+            {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const active = router.pathname === item.href;
@@ -75,8 +133,8 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
                     className={cn(
                       "rounded-lg px-3 py-1.5 text-xs font-medium transition",
                       active
-                        ? "bg-white/10 text-white font-semibold shadow-sm"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-white/10 text-white font-semibold"
+                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                     )}
                   >
                     {item.label}
@@ -86,18 +144,20 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
             </nav>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Action Bar */}
+          <div className="flex items-center gap-2.5">
             {/* Quick Command Palette Button */}
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
               className="hidden lg:flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs text-slate-400 hover:border-accent/30 hover:text-white transition"
-              title="Open Director Command Palette (Cmd+K)"
+              title={`Open Command Palette (${isMac ? "⌘K" : "Ctrl+K"})`}
+              aria-label="Open Command Palette"
             >
               <Search className="size-3.5 text-accent" />
-              <span>Search commands...</span>
+              <span>Command Palette...</span>
               <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">
-                ⌘K
+                {isMac ? "⌘K" : "Ctrl+K"}
               </kbd>
             </button>
 
@@ -107,6 +167,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
               onClick={() => {
                 setSiliconKey(user.siliconFlowKey || "");
                 setAnthropicKey(user.anthropicKey || "");
+                setTestResult(null);
                 setKeyModalOpen(true);
               }}
               title="Configure Bring Your Own Key (BYOK)"
@@ -119,7 +180,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
             >
               <Key className="size-3.5" />
               <span className="text-[11px] font-medium">
-                {user.siliconFlowKey ? "BYOK Active" : "BYOK"}
+                {user.siliconFlowKey ? "BYOK Active" : "BYOK Key"}
               </span>
             </button>
 
@@ -168,7 +229,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
           </div>
         </div>
 
-        {/* Mobile Drawer Menu */}
+        {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
           <div className="border-t border-white/8 bg-[#05070B]/98 px-6 py-4 backdrop-blur-2xl md:hidden">
             <div className="mb-3 flex items-center justify-between border-b border-white/8 pb-3 text-xs text-slate-300">
@@ -177,6 +238,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
             </div>
             <nav className="flex flex-col gap-2">
               <button
+                type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setPaletteOpen(true);
@@ -185,9 +247,9 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
               >
                 <span className="flex items-center gap-2">
                   <Command className="size-4" />
-                  Quick Command Palette
+                  Command Palette
                 </span>
-                <span className="text-xs font-mono">⌘K</span>
+                <span className="text-xs font-mono">{isMac ? "⌘K" : "Ctrl+K"}</span>
               </button>
               {navItems.map((item) => {
                 const active = router.pathname === item.href;
@@ -243,62 +305,116 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
       <Modal
         open={keyModalOpen}
         onClose={() => setKeyModalOpen(false)}
-        title="Bring Your Own Key (BYOK) Configuration"
-        description="Enter your private API keys below. Keys are stored locally in your browser and used securely for live AI generation."
+        title="Bring Your Own Key (BYOK) Management"
+        description="Configure your personal AI provider keys. Keys are stored unencrypted in browser localStorage."
       >
         <form onSubmit={handleSaveKeys} className="space-y-4">
+          <div className="rounded-xl border border-amber/30 bg-amber/10 p-3 text-xs text-amber-200 flex items-start gap-2.5">
+            <ShieldAlert className="size-4 shrink-0 text-amber mt-0.5" />
+            <div>
+              <strong>Client-Side Storage Disclaimer:</strong> Keys reside in your browser&apos;s localStorage to allow direct communication with model APIs. For shared workstations, clear keys after finishing your session.
+            </div>
+          </div>
+
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              SiliconFlow API Key (Wan2.2 AI Video Generation)
+            <label htmlFor="silicon-key-input" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              SiliconFlow API Key (Wan2.2 AI Video Provider)
             </label>
-            <input
-              type="password"
-              value={siliconKey}
-              onChange={(e) => setSiliconKey(e.target.value)}
-              placeholder="sk-..."
-              className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-accent/40"
-            />
-            <p className="mt-1.5 text-xs text-slate-400">
-              Used to render live high-definition AI video MP4s directly via Wan-AI diffusion models.
+            <div className="relative mt-1.5">
+              <input
+                id="silicon-key-input"
+                type={showSiliconKey ? "text" : "password"}
+                value={siliconKey}
+                onChange={(e) => setSiliconKey(e.target.value)}
+                placeholder="sk-xxxxxxxxxxxxxxxx"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white font-mono outline-none transition focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSiliconKey(!showSiliconKey)}
+                className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                title={showSiliconKey ? "Mask Key" : "Reveal Key"}
+                aria-label={showSiliconKey ? "Mask Key" : "Reveal Key"}
+              >
+                {showSiliconKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              Used to render live high-definition AI video MP4s via Wan2.2 diffusion models.
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Anthropic API Key (Claude 3.5 Sonnet Screenplay Analysis)
+            <label htmlFor="anthropic-key-input" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Anthropic API Key (Claude 3.5 Screenplay Parsing)
             </label>
-            <input
-              type="password"
-              value={anthropicKey}
-              onChange={(e) => setAnthropicKey(e.target.value)}
-              placeholder="sk-ant-..."
-              className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-accent/40"
-            />
-            <p className="mt-1.5 text-xs text-slate-400">
+            <div className="relative mt-1.5">
+              <input
+                id="anthropic-key-input"
+                type={showAnthropicKey ? "text" : "password"}
+                value={anthropicKey}
+                onChange={(e) => setAnthropicKey(e.target.value)}
+                placeholder="sk-ant-xxxxxxxxxxxxxxxx"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white font-mono outline-none transition focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={() => setShowAnthropicKey(!showAnthropicKey)}
+                className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                title={showAnthropicKey ? "Mask Key" : "Reveal Key"}
+                aria-label={showAnthropicKey ? "Mask Key" : "Reveal Key"}
+              >
+                {showAnthropicKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
               Used for intelligent multi-scene screenplay breakdown and dynamic camera vector assignment.
             </p>
           </div>
 
-          <div className="rounded-xl border border-accent/20 bg-accent/10 p-3.5 text-xs text-slate-300">
-            <div className="flex items-center gap-2 font-medium text-white mb-1">
-              <ShieldCheck className="size-4 text-accent" />
-              Zero-Config Blueprint Fallback
+          {testResult && (
+            <div className="rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-slate-200 font-mono">
+              {testResult}
             </div>
-            If no key is entered, CineSync automatically generates complete cinematography prompt blueprints without failing.
-          </div>
+          )}
 
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setKeyModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="gap-2">
-              {keySaved ? <Check className="size-4 text-emerald" /> : <Key className="size-4" />}
-              {keySaved ? "Keys Saved!" : "Save Keys"}
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleTestKey}
+                disabled={isTestingKey}
+              >
+                {isTestingKey ? "Checking..." : "Verify Format"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-rose hover:bg-rose/10 gap-1.5"
+                onClick={handleClearKeys}
+              >
+                <Trash2 className="size-3.5" />
+                Remove Keys
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setKeyModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5">
+                {keySaved ? <Check className="size-4 text-emerald" /> : <Key className="size-4" />}
+                {keySaved ? "Saved!" : "Save Keys"}
+              </Button>
+            </div>
           </div>
         </form>
       </Modal>
@@ -307,11 +423,11 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
       <Modal
         open={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        title={user.isLoggedIn ? "Account Profile" : "Director Sign In"}
+        title={user.isLoggedIn ? "Director Profile" : "Director Authentication"}
         description={
           user.isLoggedIn
-            ? "Manage your director profile, active tier plan, and available balance."
-            : "Sign in or create an account to persist multi-shot sequences and project timelines."
+            ? "Manage your active session, plan tier, and available credit balances."
+            : "Sign in to persist your screenplay sequences and multi-shot blueprints."
         }
       >
         {user.isLoggedIn ? (
@@ -333,11 +449,11 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-white/8 bg-black/30 p-3.5">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Balance</div>
+                <div className="text-xs uppercase tracking-wider text-slate-400 font-mono">Balance</div>
                 <div className="mt-1 text-xl font-semibold text-white">{formatCredits(user.credits)}</div>
               </div>
               <div className="rounded-xl border border-white/8 bg-black/30 p-3.5">
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">BYOK Status</div>
+                <div className="text-xs uppercase tracking-wider text-slate-400 font-mono">BYOK Status</div>
                 <div className="mt-1 text-sm font-medium text-emerald">
                   {user.siliconFlowKey ? "Active (SiliconFlow)" : "Blueprint Mode"}
                 </div>
@@ -346,53 +462,55 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
 
             <div className="flex justify-between items-center pt-2">
               <Button
-                variant="danger"
+                variant="ghost"
                 size="sm"
-                className="gap-2"
+                className="text-rose hover:bg-rose/10"
                 onClick={() => {
                   logout();
                   setAuthModalOpen(false);
                 }}
               >
-                <LogOut className="size-4" />
                 Sign Out
               </Button>
-              <Link
-                href="/billing"
-                className={buttonStyles({ size: "sm" })}
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setAuthModalOpen(false)}
               >
-                Manage Subscription
-              </Link>
+                Close
+              </Button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                Director Name
-              </label>
-              <input
-                type="text"
-                value={inputName}
-                onChange={(e) => setInputName(e.target.value)}
-                placeholder="e.g. Alex Rivers"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-accent/40"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <label htmlFor="login-email-input" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
                 Email Address
               </label>
               <input
+                id="login-email-input"
                 type="email"
                 required
-                value={inputEmail}
-                onChange={(e) => setInputEmail(e.target.value)}
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
                 placeholder="director@studio.com"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-accent/40"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-accent"
               />
             </div>
+            <div>
+              <label htmlFor="login-name-input" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                Director Name (Optional)
+              </label>
+              <input
+                id="login-name-input"
+                type="text"
+                value={loginName}
+                onChange={(e) => setLoginName(e.target.value)}
+                placeholder="Jane Campion"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-accent"
+              />
+            </div>
+
             <div className="flex justify-end gap-3 pt-2">
               <Button
                 type="button"
@@ -402,7 +520,7 @@ export function TopNav({ actionLabel = "Dashboard", actionHref = "/dashboard" }:
                 Cancel
               </Button>
               <Button type="submit">
-                Continue to Studio
+                Sign In
               </Button>
             </div>
           </form>

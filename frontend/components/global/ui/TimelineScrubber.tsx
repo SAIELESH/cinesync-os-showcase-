@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Film, Clock } from "lucide-react";
+import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Film, Clock, RotateCw } from "lucide-react";
 
 export type TimelineShot = {
   id: string;
@@ -60,7 +60,7 @@ export function TimelineScrubber({
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPlaying, totalDuration]);
 
-  // Sync active shot based on currentTime
+  // Sync active shot based on currentTime during playback
   useEffect(() => {
     let accumulated = 0;
     for (const shot of shots) {
@@ -75,12 +75,25 @@ export function TimelineScrubber({
     }
   }, [currentTime, currentShotId, onSelectShot, shots]);
 
-  const formatTimecode = (seconds: number) => {
+  // Standard SMPTE timecode (HH:MM:SS:FF)
+  const formatSMPTETimecode = (seconds: number) => {
     const totalFrames = Math.floor(seconds * fps);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
-    const m = Math.floor(seconds / 60);
     const f = totalFrames % fps;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}:${String(f).padStart(2, "0")}`;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}:${String(f).padStart(2, "0")}`;
+  };
+
+  const isAtEnd = currentTime >= totalDuration;
+
+  const handlePlayToggle = () => {
+    if (isAtEnd) {
+      setCurrentTime(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(!isPlaying);
+    }
   };
 
   const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -116,38 +129,52 @@ export function TimelineScrubber({
 
   return (
     <div className="w-full rounded-2xl border border-white/10 bg-[#0B1017] p-4 shadow-card-elevation">
-      {/* Top Header: Controls & Timecode */}
+      {/* Top Header: Transport & SMPTE Timecode */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <button
+              type="button"
               onClick={handlePreviousShot}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition"
+              className="rounded-lg p-1.5 text-slate-300 hover:bg-white/10 hover:text-white transition"
               title="Previous Shot"
+              aria-label="Previous Shot"
             >
               <ChevronLeft className="size-4" />
             </button>
             <button
-              onClick={() => setIsPlaying(!isPlaying)}
+              type="button"
+              onClick={handlePlayToggle}
               className="flex size-8 items-center justify-center rounded-xl bg-accent text-background font-semibold hover:bg-white transition shadow-glow"
-              title={isPlaying ? "Pause Timeline" : "Play Timeline"}
+              title={isAtEnd ? "Replay Sequence" : isPlaying ? "Pause Timeline" : "Play Sequence Timing"}
+              aria-label={isAtEnd ? "Replay Sequence" : isPlaying ? "Pause Timeline" : "Play Sequence Timing"}
             >
-              {isPlaying ? <Pause className="size-4 fill-current" /> : <Play className="size-4 fill-current ml-0.5" />}
+              {isAtEnd ? (
+                <RotateCw className="size-4" />
+              ) : isPlaying ? (
+                <Pause className="size-4 fill-current" />
+              ) : (
+                <Play className="size-4 fill-current ml-0.5" />
+              )}
             </button>
             <button
+              type="button"
               onClick={handleNextShot}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition"
+              className="rounded-lg p-1.5 text-slate-300 hover:bg-white/10 hover:text-white transition"
               title="Next Shot"
+              aria-label="Next Shot"
             >
               <ChevronRight className="size-4" />
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCurrentTime(0);
                 setIsPlaying(false);
               }}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition ml-1"
-              title="Reset Playhead"
+              className="rounded-lg p-1.5 text-slate-300 hover:bg-white/10 hover:text-white transition ml-1"
+              title="Reset to 00:00:00:00"
+              aria-label="Reset Playhead"
             >
               <RotateCcw className="size-3.5" />
             </button>
@@ -163,32 +190,34 @@ export function TimelineScrubber({
 
         <div className="flex items-center gap-2">
           <Clock className="size-3.5 text-gold" />
-          <span className="font-mono text-sm font-semibold tracking-timecode text-white">
-            {formatTimecode(currentTime)}
-          </span>
-          <span className="font-mono text-xs text-slate-400">/ {formatTimecode(totalDuration)}</span>
+          <div className="text-right">
+            <span className="font-mono text-xs sm:text-sm font-semibold tracking-wider text-white">
+              {formatSMPTETimecode(currentTime)}
+            </span>
+            <span className="font-mono text-xs text-slate-400"> / {formatSMPTETimecode(totalDuration)}</span>
+          </div>
           <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-white/10">
-            {fps} FPS
+            SMPTE {fps} FPS
           </span>
         </div>
       </div>
 
       {/* Timeline Track & Film Strip */}
       <div className="relative mt-4 pt-4">
-        {/* Time ruler ticks */}
-        <div className="absolute top-0 inset-x-0 flex justify-between px-1 text-[9px] font-mono text-slate-400">
-          <span>00:00:00</span>
-          <span>{formatTimecode(totalDuration * 0.25)}</span>
-          <span>{formatTimecode(totalDuration * 0.5)}</span>
-          <span>{formatTimecode(totalDuration * 0.75)}</span>
-          <span>{formatTimecode(totalDuration)}</span>
+        {/* Human-readable second ticks ruler */}
+        <div className="absolute top-0 inset-x-0 flex justify-between px-1 text-[10px] font-mono text-slate-400">
+          <span>0s</span>
+          <span>{Math.round(totalDuration * 0.25)}s</span>
+          <span>{Math.round(totalDuration * 0.5)}s</span>
+          <span>{Math.round(totalDuration * 0.75)}s</span>
+          <span>{Math.round(totalDuration)}s</span>
         </div>
 
         {/* Shots Strip Container */}
         <div
           ref={trackRef}
           onClick={handleTrackClick}
-          className="relative mt-2 flex min-h-[72px] w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-black/60"
+          className="relative mt-2 flex min-h-[76px] w-full cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-black/60"
         >
           {shots.map((shot, idx) => {
             const shotDur = shot.duration || 4;
@@ -196,39 +225,48 @@ export function TimelineScrubber({
             const isSelected = shot.id === currentShotId;
 
             return (
-              <div
+              <button
                 key={shot.id}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectShot(shot.id);
+                  const startTime = shots.slice(0, idx).reduce((acc, s) => acc + (s.duration || 4), 0);
+                  setCurrentTime(startTime);
+                }}
                 style={{ width: `${shotWidthPct}%` }}
-                className={`relative flex flex-col justify-between border-r border-white/15 p-2.5 transition-all min-w-[100px] ${
+                className={`relative flex flex-col justify-between border-r border-white/15 p-2.5 text-left transition-all min-w-[110px] ${
                   isSelected
-                    ? "bg-accent/15 border-t-2 border-t-accent"
+                    ? "bg-accent/20 border-t-2 border-t-accent shadow-[inset_0_0_12px_rgba(56,189,248,0.15)]"
                     : "bg-white/[0.03] hover:bg-white/[0.08]"
                 }`}
+                aria-label={`Shot ${idx + 1}: ${shot.name}`}
+                aria-pressed={isSelected}
               >
                 <div className="flex items-center justify-between gap-1">
                   <span className="text-[11px] font-semibold text-white leading-tight">
                     #{idx + 1} {shot.name}
                   </span>
-                  <span className="text-[9px] font-mono text-slate-400 shrink-0">{shotDur}s</span>
+                  <span className="text-[10px] font-mono text-slate-400 shrink-0">{shotDur}s</span>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1 mt-1">
                   {shot.lens && (
-                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-mono text-gold border border-white/10 whitespace-nowrap">
+                    <span className="rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-mono text-gold border border-white/10 whitespace-nowrap">
                       {shot.lens}
                     </span>
                   )}
                   {shot.movement && (
-                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[9px] text-accent border border-white/10 whitespace-nowrap">
+                    <span className="rounded bg-black/70 px-1.5 py-0.5 text-[9px] text-accent border border-white/10 whitespace-nowrap">
                       {shot.movement}
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
             );
           })}
 
-          {/* Draggable / Animated Playhead Needle */}
+          {/* Draggable Playhead Needle */}
           <div
             style={{ left: `${Math.min(100, Math.max(0, playheadPercent))}%` }}
             className="pointer-events-none absolute top-0 bottom-0 z-20 w-0.5 bg-rose shadow-[0_0_8px_rgba(251,113,133,0.8)]"

@@ -23,6 +23,8 @@ import {
   Lock,
   Unlock,
   Shield,
+  Key,
+  Coins,
   Layers,
   Sparkle
 } from "lucide-react";
@@ -56,7 +58,7 @@ const improveOptions = ["More emotional", "Change camera angle", "Improve lighti
 const regenerateOptions = ["More emotional", "Change camera angle", "Improve lighting", "Fix consistency"];
 
 export type ExtendedShot = Shot & {
-  scriptExcerpt?: string;
+  scriptExcerpt: string;
   lens: (typeof lensOptions)[number];
   movement: (typeof movementOptions)[number];
   framing: (typeof framingOptions)[number];
@@ -66,6 +68,8 @@ export type ExtendedShot = Shot & {
   styleLocked: boolean;
   cameraLocked: boolean;
   version: number;
+  isDraft: boolean;
+  pendingDiff?: string;
   renderedUrl?: string;
 };
 
@@ -73,28 +77,180 @@ export type ExtendedScene = Omit<Scene, "shots"> & {
   shots: ExtendedShot[];
 };
 
-const initialExtendedScenes: ExtendedScene[] = defaultScenes.map((sc, sIdx) => ({
-  ...sc,
-  shots: sc.shots.map((sh, shIdx) => ({
-    ...sh,
-    scriptExcerpt:
-      shIdx === 0
-        ? "EXT. RAIN-SLICKED ALLEY - NIGHT: A lone detective pauses beneath flickering neon."
-        : shIdx === 1
-        ? "CLOSE ON DETECTIVE: Rain cascades down a worn collar as distant sirens echo."
-        : "TRACKING: An umbrella turns down the avenue, footsteps splashing into puddle reflections.",
-    lens: shIdx === 0 ? "35mm Wide Prime" : shIdx === 1 ? "85mm Portrait Prime" : "50mm Normal Prime",
-    movement: shIdx === 0 ? "Dolly In" : shIdx === 1 ? "Static" : "Tracking Pan",
-    framing: shIdx === 0 ? "Rule of Thirds" : shIdx === 1 ? "Center Balanced" : "Over Shoulder",
-    emotion: 65,
-    intensity: 60,
-    characterLocked: true,
-    styleLocked: true,
-    cameraLocked: false,
-    version: 1,
-    renderedUrl: ""
-  }))
-}));
+// Distinct, cinematic screenplay excerpts for each demo scene
+const initialExtendedScenes: ExtendedScene[] = [
+  {
+    id: "scene-01",
+    title: "Scene 01 · Rain-Slicked Alley",
+    description: "Opening rain sequence with controlled neon contrast and grounded lead detective performance.",
+    duration: "00:12",
+    status: "Ready",
+    shots: [
+      {
+        id: "shot-1",
+        name: "Street reveal",
+        description: "Wide street reveal with rain streaks, reflective asphalt, and slow push-in.",
+        thumbnailLabel: "Wide rain reveal",
+        duration: "4s",
+        scriptExcerpt: "EXT. RAIN-SLICKED ALLEY - NIGHT: A lone detective pauses beneath flickering neon.",
+        lens: "35mm Wide Prime",
+        movement: "Dolly In",
+        framing: "Rule of Thirds",
+        emotion: 65,
+        intensity: 60,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      },
+      {
+        id: "shot-2",
+        name: "Character profile",
+        description: "Close profile, moody side light, measured breath and eye-line consistency.",
+        thumbnailLabel: "Close profile",
+        duration: "3s",
+        scriptExcerpt: "CLOSE ON DETECTIVE: Rain cascades down a worn collar as distant sirens echo.",
+        lens: "85mm Portrait Prime",
+        movement: "Static",
+        framing: "Center Balanced",
+        emotion: 70,
+        intensity: 65,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      },
+      {
+        id: "shot-3",
+        name: "Umbrella tracking",
+        description: "Tracking shot over shoulder with subtle parallax and controlled camera shake.",
+        thumbnailLabel: "Tracking umbrella",
+        duration: "5s",
+        scriptExcerpt: "TRACKING: Footsteps splash into puddle reflections as shadows stretch along brick walls.",
+        lens: "50mm Normal Prime",
+        movement: "Tracking Pan",
+        framing: "Over Shoulder",
+        emotion: 60,
+        intensity: 55,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      }
+    ]
+  },
+  {
+    id: "scene-02",
+    title: "Scene 02 · Safehouse Interior",
+    description: "Interior transition, warmer highlights, stronger emotional focus, tighter coverage.",
+    duration: "00:15",
+    status: "Draft",
+    shots: [
+      {
+        id: "shot-4",
+        name: "Doorway entrance",
+        description: "Medium doorway entrance with warm spill from practical lighting.",
+        thumbnailLabel: "Doorway entrance",
+        duration: "5s",
+        scriptExcerpt: "INT. SAFEHOUSE BASEMENT - NIGHT: Amber desk lamp cuts through smoke. A decrypted ledger lies open.",
+        lens: "35mm Wide Prime",
+        movement: "Dolly In",
+        framing: "Rule of Thirds",
+        emotion: 60,
+        intensity: 50,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      },
+      {
+        id: "shot-5",
+        name: "Table detail",
+        description: "Natural lens detail shot, slow tilt, controlled reflections and prop continuity.",
+        thumbnailLabel: "Table detail",
+        duration: "4s",
+        scriptExcerpt: "INSERT - LEDGER DETAIL: Finger traces coordinates scribbled in faded red ink.",
+        lens: "50mm Normal Prime",
+        movement: "Static",
+        framing: "Center Balanced",
+        emotion: 55,
+        intensity: 50,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      },
+      {
+        id: "shot-6",
+        name: "Reaction close-up",
+        description: "Intimate close-up with preserved character identity and soft depth falloff.",
+        thumbnailLabel: "Reaction close-up",
+        duration: "6s",
+        scriptExcerpt: 'MEDIUM CLOSE - JANE: "They are moving the shipment at dawn." Tension thickens.',
+        lens: "85mm Portrait Prime",
+        movement: "Static",
+        framing: "Rule of Thirds",
+        emotion: 80,
+        intensity: 75,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      }
+    ]
+  },
+  {
+    id: "scene-03",
+    title: "Scene 03 · Rooftop Standoff",
+    description: "Final decision beat with elevated drama, darker palette, and tighter editorial rhythm.",
+    duration: "00:09",
+    status: "Needs polish",
+    shots: [
+      {
+        id: "shot-7",
+        name: "Decision pause",
+        description: "Centered frame, shallow focus, restrained movement for tension build.",
+        thumbnailLabel: "Decision pause",
+        duration: "4s",
+        scriptExcerpt: "EXT. SKYSCRAPER ROOFTOP - DAWN: Fog banks roll over the city skyline as wind whips a trench coat.",
+        lens: "50mm Normal Prime",
+        movement: "Static",
+        framing: "Center Balanced",
+        emotion: 75,
+        intensity: 70,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      },
+      {
+        id: "shot-8",
+        name: "Exit motion",
+        description: "Dolly back with silhouette breakup, lingering backlight and rain haze.",
+        thumbnailLabel: "Exit motion",
+        duration: "5s",
+        scriptExcerpt: "LOW ANGLE - STANDOFF: Two silhouettes framed against rising sunlight and antenna arrays.",
+        lens: "35mm Wide Prime",
+        movement: "Dolly In",
+        framing: "Rule of Thirds",
+        emotion: 85,
+        intensity: 80,
+        characterLocked: true,
+        styleLocked: true,
+        cameraLocked: false,
+        version: 1,
+        isDraft: false
+      }
+    ]
+  }
+];
 
 type GenerationLifecycleState =
   | "idle"
@@ -113,16 +269,14 @@ export default function DirectorModePage() {
   const [currentScenes, setCurrentScenes] = useState<ExtendedScene[]>(initialExtendedScenes);
   const [activeProjectName, setActiveProjectName] = useState<string>("Demo Project · Noir Metropolis");
   const [isDemoProject, setIsDemoProject] = useState<boolean>(true);
-  const [lastSavedTime, setLastSavedTime] = useState<string>("Saved to local session");
+  const [lastSavedTime, setLastSavedTime] = useState<string>("Draft saved locally");
 
   // Selection state
   const [selectedSceneId, setSelectedSceneId] = useState(initialExtendedScenes[0].id);
   const [selectedShotId, setSelectedShotId] = useState(initialExtendedScenes[0].shots[0].id);
 
-  // Auto Director & Draft state
+  // Auto Director state
   const [autoMode, setAutoMode] = useState(true);
-  const [isDraftModified, setIsDraftModified] = useState(false);
-  const [pendingDiffMessage, setPendingDiffMessage] = useState<string | null>(null);
 
   // Undo / Redo History Stack
   const [historyStack, setHistoryStack] = useState<ExtendedScene[][]>([]);
@@ -133,7 +287,6 @@ export default function DirectorModePage() {
   const [lifecycleProgress, setLifecycleProgress] = useState(0);
   const [lifecycleMessage, setLifecycleMessage] = useState("");
   const [activeTaskId, setActiveTaskId] = useState<string>("");
-  const [renderedOutputUrl, setRenderedOutputUrl] = useState<string>("");
   const [failureReason, setFailureReason] = useState<string | null>(null);
 
   // Modals & Panels
@@ -141,8 +294,6 @@ export default function DirectorModePage() {
   const [scriptInput, setScriptInput] = useState("");
   const [isParsingScript, setIsParsingScript] = useState(false);
   const [parsedScenes, setParsedScenes] = useState<APIScene[]>([]);
-  const [generatedShots, setGeneratedShots] = useState<APIShot[]>([]);
-  const [isGeneratingShots, setIsGeneratingShots] = useState(false);
   const [improveOpen, setImproveOpen] = useState(false);
   const [improveSelection, setImproveSelection] = useState(improveOptions[0]);
   const [improveIntensity, setImproveIntensity] = useState(62);
@@ -207,9 +358,9 @@ export default function DirectorModePage() {
     const totalIssues = unlockedCharacters + unlockedStyles;
     if (totalIssues === 0) {
       return {
-        label: "All Continuity Anchors Active",
+        label: "Continuity Anchors Active",
         status: "stable" as const,
-        detail: "100% Character & Palette Consistency Locked across all shots"
+        detail: "Character and palette anchors enabled across all shots"
       };
     }
     return {
@@ -223,7 +374,7 @@ export default function DirectorModePage() {
   const recordHistory = useCallback(() => {
     setHistoryStack((prev) => [...prev.slice(-15), currentScenes]);
     setRedoStack([]);
-    setLastSavedTime(`Saved at ${new Date().toLocaleTimeString()}`);
+    setLastSavedTime(`Draft saved locally (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`);
   }, [currentScenes]);
 
   const handleUndo = () => {
@@ -232,7 +383,6 @@ export default function DirectorModePage() {
     setRedoStack((prev) => [currentScenes, ...prev]);
     setHistoryStack((prev) => prev.slice(0, -1));
     setCurrentScenes(previous);
-    setIsDraftModified(false);
     showNotification("Action undone.");
   };
 
@@ -245,25 +395,21 @@ export default function DirectorModePage() {
     showNotification("Action redone.");
   };
 
-  // Atomic Scene Selection: sets scene, selects its first shot, resets controls synchronously
+  // Atomic Scene Selection
   const handleSceneSelect = (sceneId: string) => {
     setSelectedSceneId(sceneId);
     const targetScene = currentScenes.find((s) => s.id === sceneId) ?? currentScenes[0];
     if (targetScene && targetScene.shots.length > 0) {
       setSelectedShotId(targetScene.shots[0].id);
     }
-    setIsDraftModified(false);
-    setPendingDiffMessage(null);
   };
 
   // Shot Selection
   const handleShotSelect = (shotId: string) => {
     setSelectedShotId(shotId);
-    setIsDraftModified(false);
-    setPendingDiffMessage(null);
   };
 
-  // Update active shot properties canonically
+  // Update active shot properties canonically (retaining per-shot draft state)
   const updateActiveShot = (updater: (prev: ExtendedShot) => ExtendedShot, diffDesc?: string) => {
     recordHistory();
     setCurrentScenes((prevScenes) =>
@@ -273,15 +419,16 @@ export default function DirectorModePage() {
           ...sc,
           shots: sc.shots.map((sh) => {
             if (sh.id !== selectedShot.id) return sh;
-            return updater(sh);
+            const updated = updater(sh);
+            return {
+              ...updated,
+              isDraft: true,
+              pendingDiff: diffDesc || updated.pendingDiff || "Directing parameters modified."
+            };
           })
         };
       })
     );
-    setIsDraftModified(true);
-    if (diffDesc) {
-      setPendingDiffMessage(diffDesc);
-    }
   };
 
   // Functional One-Click Creative Directions
@@ -333,17 +480,17 @@ export default function DirectorModePage() {
     }
   };
 
-  // Shot Management: Add / Delete Shot
-  const handleAddShot = () => {
+  // Generate Coverage Shot (Per-shot draft state preserved)
+  const handleGenerateCoverageShot = () => {
     recordHistory();
     const newShotNum = selectedScene.shots.length + 1;
     const newShot: ExtendedShot = {
       id: `shot-${Date.now()}`,
-      name: `Shot 0${newShotNum} Cut`,
-      description: `Supplemental coverage shot for ${selectedScene.title} with consistent character lighting.`,
+      name: `Shot 0${newShotNum} Coverage`,
+      description: `AI-generated supplemental coverage for ${selectedScene.title} maintaining active actor continuity.`,
       thumbnailLabel: `Shot 0${newShotNum}`,
       duration: "4s",
-      scriptExcerpt: `Coverage beat ${newShotNum} for ${selectedScene.title}`,
+      scriptExcerpt: `Coverage beat 0${newShotNum} for ${selectedScene.title}`,
       lens: "50mm Normal Prime",
       movement: "Dolly In",
       framing: "Rule of Thirds",
@@ -352,7 +499,8 @@ export default function DirectorModePage() {
       characterLocked: true,
       styleLocked: true,
       cameraLocked: false,
-      version: 1
+      version: 1,
+      isDraft: false
     };
 
     setCurrentScenes((prev) =>
@@ -362,7 +510,7 @@ export default function DirectorModePage() {
       })
     );
     setSelectedShotId(newShot.id);
-    showNotification(`New shot cut added to ${selectedScene.title}.`);
+    showNotification(`Generated new AI coverage shot in ${selectedScene.title}.`);
   };
 
   const handleDeleteShot = (shotId: string) => {
@@ -398,7 +546,7 @@ export default function DirectorModePage() {
     [selectedScene.shots]
   );
 
-  // Global hotkeys with strict modal guards
+  // Global hotkeys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isInputActive =
@@ -511,14 +659,24 @@ export default function DirectorModePage() {
 
         setTimeout(() => {
           if (!isMountedRef.current) return;
-          // Increment shot version canonical state
-          updateActiveShot((prev) => ({
-            ...prev,
-            version: prev.version + 1,
-            renderedUrl: ""
-          }));
-          setIsDraftModified(false);
-          setPendingDiffMessage(null);
+          // Clear draft state and increment shot version
+          setCurrentScenes((prevScenes) =>
+            prevScenes.map((sc) => {
+              if (sc.id !== selectedScene.id) return sc;
+              return {
+                ...sc,
+                shots: sc.shots.map((sh) => {
+                  if (sh.id !== selectedShot.id) return sh;
+                  return {
+                    ...sh,
+                    version: sh.version + 1,
+                    isDraft: false,
+                    pendingDiff: undefined
+                  };
+                })
+              };
+            })
+          );
           setLifecycleState("completed");
           setLifecycleProgress(100);
           setLifecycleMessage("Shot successfully rendered and validated for sequence continuity.");
@@ -564,7 +722,7 @@ export default function DirectorModePage() {
           description: `${ps.environment} - ${ps.character}`,
           thumbnailLabel: "Establishing shot",
           duration: "4s",
-          scriptExcerpt: ps.action || ps.description || "",
+          scriptExcerpt: ps.action || ps.description || `Scene ${idx + 1} action beat`,
           lens: "35mm Wide Prime",
           movement: "Dolly In",
           framing: "Rule of Thirds",
@@ -573,7 +731,8 @@ export default function DirectorModePage() {
           characterLocked: true,
           styleLocked: true,
           cameraLocked: false,
-          version: 1
+          version: 1,
+          isDraft: false
         }
       ]
     }));
@@ -757,7 +916,7 @@ export default function DirectorModePage() {
                 onSelectShot={handleShotSelect}
               />
 
-              {/* Shot Coverage Strip with Add / Delete actions */}
+              {/* Shot Coverage Strip with Accurate 'Generate Coverage Shot' */}
               <Card className="p-4 space-y-3">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                   <div>
@@ -772,10 +931,10 @@ export default function DirectorModePage() {
                     variant="secondary"
                     size="sm"
                     className="gap-1 text-xs"
-                    onClick={handleAddShot}
+                    onClick={handleGenerateCoverageShot}
                   >
                     <Plus className="size-3" />
-                    Add Shot Cut
+                    Generate Coverage Shot
                   </Button>
                 </div>
 
@@ -801,6 +960,11 @@ export default function DirectorModePage() {
                           <div className="flex items-center justify-between text-[10px] font-mono text-slate-300">
                             <span>CUT 0{sIdx + 1}</span>
                             <div className="flex items-center gap-1.5">
+                              {shot.isDraft && (
+                                <span className="rounded bg-amber/20 px-1 py-0.2 text-[8px] font-mono text-amber">
+                                  DRAFT
+                                </span>
+                              )}
                               <span>{shot.duration}</span>
                               {selectedScene.shots.length > 1 && (
                                 <button
@@ -827,7 +991,7 @@ export default function DirectorModePage() {
                         </div>
 
                         {shot.scriptExcerpt && (
-                          <div className="mt-2 rounded bg-black/40 p-1.5 font-mono text-[9px] text-slate-400 border border-white/5 line-clamp-1">
+                          <div className="mt-2 rounded bg-black/50 p-1.5 font-mono text-[9px] text-slate-300 border border-white/5 line-clamp-1">
                             📄 {shot.scriptExcerpt}
                           </div>
                         )}
@@ -837,7 +1001,7 @@ export default function DirectorModePage() {
                 </div>
               </Card>
 
-              {/* Camera & Optics Controls */}
+              {/* Camera & Optics Controls with Accessible Radio Semantics */}
               <Card className="p-4 space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                   <div className="flex items-center gap-2">
@@ -861,6 +1025,7 @@ export default function DirectorModePage() {
                       <span className="font-mono text-gold text-[11px]">{selectedShot.lens}</span>
                     </div>
                     <Tabs
+                      ariaLabel="Lens Focal Length"
                       items={[...lensOptions]}
                       value={selectedShot.lens}
                       onChange={(newLens) =>
@@ -879,6 +1044,7 @@ export default function DirectorModePage() {
                       <span className="font-mono text-accent text-[11px]">{selectedShot.movement}</span>
                     </div>
                     <Tabs
+                      ariaLabel="Camera Movement Trajectory"
                       items={[...movementOptions]}
                       value={selectedShot.movement}
                       onChange={(newMovement) =>
@@ -897,6 +1063,7 @@ export default function DirectorModePage() {
                       <span className="font-mono text-slate-300 text-[11px]">{selectedShot.framing}</span>
                     </div>
                     <Tabs
+                      ariaLabel="Framing Geometry"
                       items={[...framingOptions]}
                       value={selectedShot.framing}
                       onChange={(newFraming) =>
@@ -1068,7 +1235,7 @@ export default function DirectorModePage() {
               </Card>
             </div>
 
-            {/* Column 3: Live Viewport, Draft Diff & Rendering Execution */}
+            {/* Column 3: Live Viewport, Living Storyboard Frame & Generation Routing */}
             <div className="space-y-4">
               <Card className="p-4 space-y-3">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
@@ -1083,32 +1250,34 @@ export default function DirectorModePage() {
                   <span
                     className={cn(
                       "rounded-full border px-2.5 py-0.5 text-[10px] font-mono",
-                      isDraftModified
+                      selectedShot.isDraft
                         ? "border-amber/40 bg-amber/10 text-amber"
-                        : "border-emerald/40 bg-emerald/10 text-emerald"
+                        : "border-cyan-400/40 bg-cyan-950/40 text-cyan-300"
                     )}
                   >
-                    {isDraftModified ? "● DRAFT CHANGES" : "● RENDERED V" + selectedShot.version}
+                    {selectedShot.isDraft ? "● UNRENDERED CHANGES" : `● DIRECTING BLUEPRINT V${selectedShot.version}`}
                   </span>
                 </div>
 
                 {/* Draft Modification Diff Banner */}
-                {isDraftModified && (
+                {selectedShot.isDraft && (
                   <div className="rounded-xl border border-amber/30 bg-amber/10 p-2.5 text-xs text-amber-200 flex items-start gap-2">
                     <AlertTriangle className="size-4 shrink-0 text-amber mt-0.5" />
                     <div>
-                      <strong>Unrendered Directing Changes:</strong> {pendingDiffMessage || "Parameters modified."}
+                      <strong>Unrendered Directing Changes:</strong> {selectedShot.pendingDiff || "Directing parameters modified."}
                     </div>
                   </div>
                 )}
 
-                {/* Live Video Player with Truthful Metadata */}
+                {/* Living Storyboard Frame Video Player */}
                 <VideoPlayer
                   animated={false}
                   title={selectedShot.thumbnailLabel}
                   subtitle={`${selectedShot.description} Directed on ${selectedShot.lens}, ${selectedShot.movement} trajectory, ${selectedShot.framing}.`}
                   focalLength={selectedShot.lens}
-                  isDraft={isDraftModified}
+                  isDraft={selectedShot.isDraft}
+                  version={selectedShot.version}
+                  shotTheme={selectedShot.thumbnailLabel}
                   continuityStatus={{
                     character: selectedShot.characterLocked,
                     lighting: true,
@@ -1116,24 +1285,50 @@ export default function DirectorModePage() {
                   }}
                 />
 
-                {/* Canonical Shot Diagnostics */}
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-xs">
-                    <span className="text-slate-300">Character Identity:</span>
-                    <span className={selectedShot.characterLocked ? "text-emerald font-mono font-medium" : "text-rose font-mono font-medium"}>
-                      {selectedShot.characterLocked ? "● Locked (Anchor Active)" : "▲ Drift Risk (Free Seed)"}
-                    </span>
+                {/* Screenplay Traceability Snippet */}
+                {selectedShot.scriptExcerpt && (
+                  <div className="rounded-xl border border-white/8 bg-black/40 p-3 text-xs">
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
+                      <FileText className="size-3 text-gold" />
+                      Screenplay Source Line
+                    </div>
+                    <p className="font-mono text-slate-200 text-[11px] leading-relaxed">
+                      {selectedShot.scriptExcerpt}
+                    </p>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-xs">
-                    <span className="text-slate-300">Color Palette Continuity:</span>
-                    <span className={selectedShot.styleLocked ? "text-emerald font-mono font-medium" : "text-slate-400 font-mono"}>
-                      {selectedShot.styleLocked ? "● Locked (Preset Palette)" : "○ Free Variation"}
-                    </span>
+                )}
+
+                {/* BYOK vs Platform Credit Method Routing Explanation */}
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-white">
+                    {user.siliconFlowKey ? (
+                      <>
+                        <Key className="size-3.5 text-emerald" />
+                        <span>Generation Method: BYOK Direct (Wan2.2)</span>
+                      </>
+                    ) : user.credits >= 20 ? (
+                      <>
+                        <Coins className="size-3.5 text-gold" />
+                        <span>Generation Method: 20 CineSync Credits</span>
+                      </>
+                    ) : (
+                      <>
+                        <Film className="size-3.5 text-cyan-400" />
+                        <span>Generation Method: Directing Blueprint Compilation</span>
+                      </>
+                    )}
                   </div>
+                  <p className="text-[11px] text-slate-400 leading-snug">
+                    {user.siliconFlowKey
+                      ? "SiliconFlow API Key active. Live video rendering will execute directly at zero platform credit cost."
+                      : user.credits >= 20
+                      ? "Using platform managed compute balance to process high-definition video generation."
+                      : "Zero credit cost. Compiles complete camera vectors and prompt blueprints. Configure a BYOK key in the top nav to render MP4 video."}
+                  </p>
                 </div>
 
-                {/* Primary Action Button (Explicit Diff & Render Execution) */}
-                <div className="pt-2">
+                {/* Primary Action Button */}
+                <div className="pt-1">
                   <Button
                     size="lg"
                     className="w-full justify-center gap-2 bg-accent text-background font-bold shadow-glow hover:bg-white transition"
@@ -1141,7 +1336,7 @@ export default function DirectorModePage() {
                     disabled={lifecycleState !== "idle" && lifecycleState !== "completed" && lifecycleState !== "failed"}
                   >
                     <RefreshCw className="size-4" />
-                    {isDraftModified
+                    {selectedShot.isDraft
                       ? `Render v${selectedShot.version + 1} with Changes`
                       : `Regenerate Shot Cut (v${selectedShot.version + 1})`}
                   </Button>
@@ -1334,7 +1529,7 @@ export default function DirectorModePage() {
         description="Review parsed scenes before importing into your Director Studio workspace."
       >
         <div className="space-y-4">
-          {parsedScenes.map((sc, idx) => (
+          {parsedScenes.map((sc) => (
             <Card key={sc.id} className="p-3.5 space-y-1.5">
               <div className="font-semibold text-white text-sm">
                 Scene {sc.number}: {sc.title}

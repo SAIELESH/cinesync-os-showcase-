@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Sparkles, Camera, Eye, CheckCircle2, AlertCircle } from "lucide-react";
+import { Play, Pause, Sparkles, Camera, Eye, CheckCircle2, AlertCircle, Film } from "lucide-react";
 import { Card } from "@/components/global/ui/Card";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,8 @@ type VideoPlayerProps = {
   focalLength?: string;
   fps?: number;
   isDraft?: boolean;
+  version?: number;
+  shotTheme?: string;
   continuityStatus?: {
     character: boolean;
     lighting: boolean;
@@ -31,10 +33,54 @@ export function VideoPlayer({
   focalLength = "50mm Normal Prime",
   fps = 24,
   isDraft = false,
+  version = 1,
+  shotTheme,
   continuityStatus = { character: true, lighting: true, style: true }
 }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
+
+  // Dynamic Storyboard Theme Background
+  const getThemeBackground = () => {
+    const t = (shotTheme || title).toLowerCase();
+    if (t.includes("rain") || t.includes("street") || t.includes("establishing")) {
+      return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-[#060D1A] to-[#0A1628] opacity-95" />
+          <div className="absolute top-1/4 left-1/3 size-64 rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="absolute bottom-1/3 right-1/4 size-48 rounded-full bg-blue-600/15 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(56,189,248,0.15),transparent_60%)]" />
+          {/* Subtle Rain Streaks Effect */}
+          <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(105deg,transparent,transparent_15px,rgba(255,255,255,0.06)_16px,transparent_17px)]" />
+        </div>
+      );
+    } else if (t.includes("profile") || t.includes("reaction") || t.includes("close")) {
+      return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-[#140D07] to-[#1F1206] opacity-95" />
+          <div className="absolute top-1/3 right-1/3 size-56 rounded-full bg-amber-500/15 blur-3xl" />
+          <div className="absolute bottom-1/4 left-1/4 size-48 rounded-full bg-rose-500/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(245,158,11,0.18),transparent_65%)]" />
+        </div>
+      );
+    } else if (t.includes("safehouse") || t.includes("doorway") || t.includes("ledger") || t.includes("table")) {
+      return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-[#120E0A] to-[#1C140D] opacity-95" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-60 rounded-full bg-amber-600/20 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.15),transparent_70%)]" />
+        </div>
+      );
+    } else {
+      return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-[#0B1017] to-[#121824] opacity-95" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 size-72 rounded-full bg-sky-500/12 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(56,189,248,0.14),transparent_60%)]" />
+        </div>
+      );
+    }
+  };
 
   const body = (
     <Card
@@ -55,16 +101,15 @@ export function VideoPlayer({
           {showMeta && (
             <div className="pointer-events-none absolute right-3 top-3 flex items-center gap-2">
               <span className="rounded-full border border-emerald/30 bg-black/80 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-emerald backdrop-blur">
-                ● RENDERED MP4 (WAN2.2)
+                ● VIDEO RENDER V{version}
               </span>
             </div>
           )}
         </div>
       ) : (
         <>
-          {/* Viewport Ambient Studio Background */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/70 opacity-90 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(56,189,248,0.12),transparent_70%)] pointer-events-none" />
+          {/* Dynamic Living Storyboard Atmosphere Background */}
+          {getThemeBackground()}
 
           {/* Rule of Thirds Sensor Grid Overlay */}
           {showGrid && (
@@ -89,16 +134,16 @@ export function VideoPlayer({
                   "flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider shrink-0",
                   isDraft
                     ? "border-amber/40 bg-amber/10 text-amber"
-                    : "border-emerald/40 bg-emerald/10 text-emerald"
+                    : "border-cyan-400/40 bg-cyan-950/40 text-cyan-300"
                 )}
               >
                 <span
                   className={cn(
                     "size-1.5 rounded-full",
-                    isDraft ? "bg-amber" : "bg-emerald animate-pulse"
+                    isDraft ? "bg-amber" : "bg-cyan-400 animate-pulse"
                   )}
                 />
-                {isDraft ? "UNSAVED DRAFT DIRECTION" : "RENDERED BLUEPRINT"}
+                {isDraft ? "UNRENDERED CHANGES" : `DIRECTING BLUEPRINT V${version}`}
               </div>
               <span className="rounded-full border border-white/10 bg-black/70 px-2.5 py-0.5 text-[10px] font-mono text-slate-200 backdrop-blur whitespace-nowrap">
                 {focalLength}
@@ -128,12 +173,13 @@ export function VideoPlayer({
           </div>
 
           {/* Center Play Button Simulator */}
-          <div className="relative z-20 my-auto flex items-center justify-center py-4">
+          <div className="relative z-20 my-auto flex flex-col items-center justify-center py-4">
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
               className="group/btn flex size-14 items-center justify-center rounded-full border border-white/20 bg-black/80 text-white shadow-glow backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-accent hover:bg-accent hover:text-background"
-              aria-label={isPlaying ? "Pause Preview Timing" : "Preview Sequence Timing"}
+              aria-label={src ? "Play Generated Shot" : isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing"}
+              title={src ? "Play Generated Shot" : isPlaying ? "Pause Sequence Timing" : "Preview Sequence Timing"}
             >
               {isPlaying ? (
                 <Pause className="size-5 fill-current" />
@@ -141,9 +187,12 @@ export function VideoPlayer({
                 <Play className="ml-1 size-5 fill-current" />
               )}
             </button>
+            <span className="mt-2 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              {src ? "Play Generated Shot" : "Preview Sequence Timing"}
+            </span>
           </div>
 
-          {/* Bottom HUD: Scene Metadata & Locks */}
+          {/* Bottom HUD: Scene Metadata & Continuity Chips */}
           <div className="relative z-20 space-y-2.5 pt-2">
             <div>
               <div className="flex items-center gap-2">
